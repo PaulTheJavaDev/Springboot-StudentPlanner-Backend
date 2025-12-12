@@ -2,6 +2,7 @@ package de.pls.stundenplaner.service;
 
 import de.pls.stundenplaner.model.Assignment;
 import de.pls.stundenplaner.repository.AssignmentRepository;
+import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -35,19 +36,19 @@ public class AssignmentService {
         return assignmentRepository.findByStudentUUID(studentUUID);
     }
 
-    public ResponseEntity<String> deleteAssignment(final int id) {
+    public ResponseEntity<String> deleteAssignment(
+            UUID studentUUID,
+            final int id
+    ) {
 
-        if (assignmentRepository.findById(id).isEmpty()) {
-            return new ResponseEntity<>(assignment_To_Be_Deleted_Not_Found_Message, HttpStatus.NOT_FOUND);
+        Assignment assignment = assignmentRepository.findAssignmentByStudentUUIDAndId(studentUUID, id);
+
+        if (assignment == null) {
+            return ResponseEntity.notFound().build();
         }
 
-        try {
-            assignmentRepository.deleteById(id);
-        } catch (Exception exception) {
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
-        }
-
-        return new ResponseEntity<>(success_Full_assignment_Deletion_Message, HttpStatus.OK);
+        assignmentRepository.delete(assignment);
+        return ResponseEntity.noContent().build();
     }
 
     /**

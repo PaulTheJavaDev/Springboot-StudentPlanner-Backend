@@ -58,6 +58,6 @@ public class AssignmentController {
             @PathVariable UUID studentUUID,
             @PathVariable int id
     ) {
-        return assignmentService.deleteAssignment(id);
+        return assignmentService.deleteAssignment(studentUUID, id);
     }
 }
