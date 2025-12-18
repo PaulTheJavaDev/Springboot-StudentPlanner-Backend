@@ -1,50 +1,49 @@
 package de.pls.stundenplaner.model;
 
-import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.bson.types.ObjectId;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
-import java.util.UUID;
 
-@SuppressWarnings("all")
-@Entity
+@Document(collection = "assignments")
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class Assignment {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private ObjectId id;
 
-    @Column(nullable = false)
-    private UUID studentUUID;
-
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
+    private String identifier;
     private Subject subject;
-
-    @Column(nullable = false)
     private Date dueDate;
 
     public void setSubject(Subject subject) {
         this.subject = subject;
     }
 
-    public void setId(int id) {
+    public void setId(ObjectId id) {
         this.id = id;
     }
 
-    public void setStudentUUID(UUID studentUUID) {
-        this.studentUUID = studentUUID;
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
     }
 
     public void setDueDate(Date dueDate) {
         this.dueDate = dueDate;
     }
 
-    public int getId() {
+    public ObjectId getId() {
         return id;
     }
 
-    public UUID getStudentUUID() {
-        return studentUUID;
+    public String getIdentifier() {
+        return identifier;
     }
 
     public Subject getSubject() {

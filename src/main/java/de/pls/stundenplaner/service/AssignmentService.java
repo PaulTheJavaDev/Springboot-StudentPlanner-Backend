@@ -1,113 +1,56 @@
 package de.pls.stundenplaner.service;
 
 import de.pls.stundenplaner.model.Assignment;
-import de.pls.stundenplaner.repository.AssignmentRepository;
-import org.apache.coyote.Response;
+import de.pls.stundenplaner.repository.MongoAssignmentRepository;
+import org.bson.types.ObjectId;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.UUID;
-
-import static de.pls.stundenplaner.util.ControllerMessages.HttpStatusMessages.*;
 
 @Service
 public class AssignmentService {
 
-    final AssignmentRepository assignmentRepository;
+    private final MongoAssignmentRepository repo;
 
-    /**
-     * Constructor for creation of the {@link AssignmentRepository}
-     * @param assignmentRepository temporary Repository of the Assignment Model.<br>
-     *                             look: {@link Assignment}
-     */
-    public AssignmentService(AssignmentRepository assignmentRepository) {
-        this.assignmentRepository = assignmentRepository;
+    public AssignmentService(MongoAssignmentRepository repo) {
+        this.repo = repo;
     }
 
-    /**
-     * Gets all Assignments for one user based on the StudentUUID.<br>
-     * The StudentUUID is already in the URL.
-     * @param studentUUID Credential for searching in all the Repository's contents.
-     * @return all found Assignments
-     */
-    public List<Assignment> getAllAssignments(UUID studentUUID) {
-        return assignmentRepository.findByStudentUUID(studentUUID);
+    public List<Assignment> getAllAssignments(String studentUUID) {
+        return repo.findByIdentifier(studentUUID);
     }
 
-    public ResponseEntity<String> deleteAssignment(
-            UUID studentUUID,
-            final int id
-    ) {
+    public ResponseEntity<Assignment> getAssignment(String studentUUID, ObjectId id) {
 
-        Assignment assignment = assignmentRepository.findAssignmentByStudentUUIDAndId(studentUUID, id);
+        Assignment assignment = repo.findAssignmentByIdentifierAndId(studentUUID, id);
 
         if (assignment == null) {
             return ResponseEntity.notFound().build();
-        }
-
-        assignmentRepository.delete(assignment);
-        return ResponseEntity.noContent().build();
-    }
-
-    /**
-     * Gets a Singular Assignments from the current User based on the StudentUUID.
-     * @param studentUUID Credential for searching the {@link AssignmentRepository}.
-     * @param id Second credential for searching.
-     * @return The proper HTTPStatus
-     */
-    public ResponseEntity<Assignment> getAssignment(
-            final UUID studentUUID,
-            final int id
-    ) {
-
-        Assignment assignment = assignmentRepository.findAssignmentByStudentUUIDAndId(studentUUID, id);
-
-        if (assignment == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
 
         return ResponseEntity.ok(assignment);
-
     }
 
-    /**
-     *
-     * @param studentUUID
-     * @param assignmentToCreate
-     * @return
-     */
-    public ResponseEntity<Assignment> createAssignment(
-            final UUID studentUUID,
-            final Assignment assignmentToCreate
-    ) {
-
-        assignmentToCreate.setId(0);
-        assignmentToCreate.setStudentUUID(studentUUID);
-
-        Assignment savedAssignment = assignmentRepository.save(assignmentToCreate);
-        return new ResponseEntity<>(savedAssignment, HttpStatus.CREATED);
-
+    public ResponseEntity<Assignment> createAssignment(String studentUUID, Assignment assignment) {
+        assignment.setId(new ObjectId());
+        assignment.setIdentifier(studentUUID);
+        return new ResponseEntity<>(repo.save(assignment), HttpStatus.CREATED);
     }
 
-    public ResponseEntity<Assignment> updateAssignment(
-            UUID studentUUID,
-            int id,
-            Assignment updatedData
-    ) {
+    public ResponseEntity<Assignment> updateAssignment(String studentUUID, ObjectId id, Assignment updated) {
+        Assignment assignment = repo.findAssignmentByIdentifierAndId(studentUUID, id);
+        if (assignment == null) return ResponseEntity.notFound().build();
+        assignment.setSubject(updated.getSubject());
+        assignment.setDueDate(updated.getDueDate());
+        return ResponseEntity.ok(repo.save(assignment));
+    }
 
-        Assignment assignment =
-                assignmentRepository.findAssignmentByStudentUUIDAndId(studentUUID, id);
-
-        if (assignment == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        assignment.setSubject(updatedData.getSubject());
-        assignment.setDueDate(updatedData.getDueDate());
-
-        return ResponseEntity.ok(assignmentRepository.save(assignment));
-
+    public ResponseEntity<Void> deleteAssignment(String studentUUID, ObjectId id) {
+        Assignment assignment = repo.findAssignmentByIdentifierAndId(studentUUID, id);
+        if (assignment == null) return ResponseEntity.notFound().build();
+        repo.delete(assignment);
+        return ResponseEntity.noContent().build();
     }
 }
