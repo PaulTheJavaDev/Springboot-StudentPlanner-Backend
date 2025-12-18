@@ -2,15 +2,17 @@ package de.pls.stundenplaner.controller;
 
 import de.pls.stundenplaner.model.Assignment;
 import de.pls.stundenplaner.service.AssignmentService;
+import jakarta.validation.Valid;
 import org.bson.types.ObjectId;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+
 @RestController
 @RequestMapping("/students/{studentUUID}/assignments")
-public class AssignmentController {
+public abstract class AssignmentController {
 
     private final AssignmentService service;
 
@@ -19,28 +21,52 @@ public class AssignmentController {
     }
 
     @GetMapping
-    public List<Assignment> getAll(@PathVariable String studentUUID) {
-        return service.getAllAssignments(studentUUID);
+    public ResponseEntity<List<Assignment>> getAllAssignmentsForUser(
+            @PathVariable String studentUUID
+    ) {
+
+        return service.getAllAssignmentsForUser(studentUUID);
+
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Assignment> getOne(@PathVariable String studentUUID, @PathVariable String id) {
-        return service.getAssignment(studentUUID, new ObjectId(id));
+    public ResponseEntity<Assignment> getAssignment(
+            @PathVariable String studentUUID,
+            @PathVariable ObjectId id
+    ) {
+
+        return service.getAssignment(studentUUID, id);
+
     }
 
     @PostMapping
-    public ResponseEntity<Assignment> create(@PathVariable String studentUUID, @RequestBody Assignment assignment) {
+    public ResponseEntity<Assignment> create(
+            @PathVariable String studentUUID,
+            @Valid @RequestBody Assignment assignment
+    ) {
+
         return service.createAssignment(studentUUID, assignment);
+
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Assignment> update(@PathVariable String studentUUID, @PathVariable String id,
-                                             @RequestBody Assignment updated) {
+    public ResponseEntity<Assignment> update(
+            @PathVariable String studentUUID,
+            @PathVariable String id,
+            @Valid @RequestBody Assignment updated
+    ) {
+
         return service.updateAssignment(studentUUID, new ObjectId(id), updated);
+
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable String studentUUID, @PathVariable String id) {
+    public ResponseEntity<Void> deleteAssignment(
+            @PathVariable String studentUUID,
+            @PathVariable String id
+    ) {
+
         return service.deleteAssignment(studentUUID, new ObjectId(id));
+
     }
 }

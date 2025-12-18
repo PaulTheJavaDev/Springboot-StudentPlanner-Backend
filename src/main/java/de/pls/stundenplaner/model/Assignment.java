@@ -11,8 +11,6 @@ import java.util.Date;
 
 @Document(collection = "assignments")
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 public class Assignment {
 
     @Id
@@ -21,6 +19,15 @@ public class Assignment {
     private String identifier;
     private Subject subject;
     private Date dueDate;
+
+    public Assignment() {}
+
+    public Assignment(ObjectId id, String identifier, Subject subject, Date dueDate) {
+        this.id = id;
+        this.identifier = identifier;
+        this.subject = subject;
+        this.dueDate = dueDate;
+    }
 
     public void setSubject(Subject subject) {
         this.subject = subject;
