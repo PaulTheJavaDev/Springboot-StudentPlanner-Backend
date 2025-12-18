@@ -12,5 +12,4 @@ public interface AssignmentRepository extends JpaRepository<Assignment, Integer>
 
     Assignment findAssignmentByStudentUUIDAndId(UUID studentUUID, int id);
 
-    UUID studentUUID(UUID studentUUID);
 }

@@ -1,12 +1,11 @@
 package de.pls.stundenplaner.model;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.util.Date;
 import java.util.UUID;
 
+@SuppressWarnings("all")
 @Entity
 public class Assignment {
 
@@ -18,7 +17,10 @@ public class Assignment {
     private UUID studentUUID;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private Subject subject;
+
+    @Column(nullable = false)
     private Date dueDate;
 
     public void setSubject(Subject subject) {
