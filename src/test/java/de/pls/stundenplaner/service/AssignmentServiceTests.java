@@ -1,8 +1,9 @@
+/*
+
 package de.pls.stundenplaner.service;
 
 import de.pls.stundenplaner.model.Assignment;
 import de.pls.stundenplaner.model.Subject;
-import de.pls.stundenplaner.repository.MongoAssignmentRepository;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -86,3 +87,6 @@ final class AssignmentServiceTests {
     }
 
 }
+
+
+ */

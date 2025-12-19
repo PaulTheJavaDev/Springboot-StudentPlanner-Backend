@@ -1,8 +1,7 @@
 package de.pls.stundenplaner.service;
 
 import de.pls.stundenplaner.model.Assignment;
-import de.pls.stundenplaner.repository.MongoAssignmentRepository;
-import org.bson.types.ObjectId;
+import de.pls.stundenplaner.repository.AssignmentRepository;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,27 +12,27 @@ import java.util.List;
 @Service
 public final class AssignmentService {
 
-    private final MongoAssignmentRepository mongoAssignmentRepository;
+    private final AssignmentRepository AssignmentRepository;
 
-    public AssignmentService(MongoAssignmentRepository repo) {
-        this.mongoAssignmentRepository = repo;
+    public AssignmentService(AssignmentRepository assignmentRepository) {
+        this.AssignmentRepository = assignmentRepository;
     }
 
     public ResponseEntity<List<Assignment>> getAllAssignmentsForUser(
             @NotNull final String studentUUID
     ) {
 
-        List<Assignment> assignments = mongoAssignmentRepository.findByIdentifier(studentUUID);
+        List<Assignment> assignments = AssignmentRepository.findAssignmentsByStudentUUID(studentUUID);
         return ResponseEntity.ok(assignments);
 
     }
 
     public ResponseEntity<Assignment> getAssignment(
             @NotNull final String studentUUID,
-            @NotNull final ObjectId id
+            final int id
     ) {
 
-        Assignment searchedAssignment = mongoAssignmentRepository.findAssignmentByIdentifierAndId(studentUUID, id);
+        Assignment searchedAssignment = AssignmentRepository.findAssignmentByStudentUUIDAndId(studentUUID, id);
 
         if (searchedAssignment == null) {
             return ResponseEntity.notFound().build();
@@ -47,18 +46,18 @@ public final class AssignmentService {
             @NotNull final String studentUUID,
             @NotNull final Assignment assignment
     ) {
-        assignment.setId(new ObjectId());
-        assignment.setIdentifier(studentUUID);
+        assignment.setId(0);
+        assignment.setStudentUUID(studentUUID);
 
-        return new ResponseEntity<>(mongoAssignmentRepository.save(assignment), HttpStatus.CREATED);
+        return new ResponseEntity<>(AssignmentRepository.save(assignment), HttpStatus.CREATED);
     }
 
     public ResponseEntity<Assignment> updateAssignment(
             @NotNull final String studentUUID,
-            @NotNull final ObjectId id,
+            final int id,
             @NotNull final Assignment updated
     ) {
-        final Assignment assignmentToUpdate = mongoAssignmentRepository.findAssignmentByIdentifierAndId(studentUUID, id);
+        final Assignment assignmentToUpdate = AssignmentRepository.findAssignmentByStudentUUIDAndId(studentUUID, id);
 
         if (assignmentToUpdate == null) {
             return ResponseEntity.notFound().build();
@@ -67,20 +66,20 @@ public final class AssignmentService {
         assignmentToUpdate.setSubject(updated.getSubject());
         assignmentToUpdate.setDueDate(updated.getDueDate());
 
-        return ResponseEntity.ok(mongoAssignmentRepository.save(assignmentToUpdate));
+        return ResponseEntity.ok(AssignmentRepository.save(assignmentToUpdate));
     }
 
     public ResponseEntity<Void> deleteAssignment(
             @NotNull final String studentUUID,
-            @NotNull final ObjectId id
+            final int id
     ) {
-        Assignment assignmentToDelete = mongoAssignmentRepository.findAssignmentByIdentifierAndId(studentUUID, id);
+        Assignment assignmentToDelete = AssignmentRepository.findAssignmentByStudentUUIDAndId(studentUUID, id);
 
         if (assignmentToDelete == null) {
             return ResponseEntity.notFound().build();
         }
 
-        mongoAssignmentRepository.delete(assignmentToDelete);
+        AssignmentRepository.delete(assignmentToDelete);
 
         return ResponseEntity.noContent().build();
     }

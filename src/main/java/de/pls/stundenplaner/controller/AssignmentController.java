@@ -3,7 +3,6 @@ package de.pls.stundenplaner.controller;
 import de.pls.stundenplaner.model.Assignment;
 import de.pls.stundenplaner.service.AssignmentService;
 import jakarta.validation.Valid;
-import org.bson.types.ObjectId;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,11 +11,11 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/students/{studentUUID}/assignments")
-public abstract class AssignmentController {
+public class AssignmentController {
 
     private final AssignmentService service;
 
-    public AssignmentController(AssignmentService service) {
+    protected AssignmentController(AssignmentService service) {
         this.service = service;
     }
 
@@ -32,7 +31,7 @@ public abstract class AssignmentController {
     @GetMapping("/{id}")
     public ResponseEntity<Assignment> getAssignment(
             @PathVariable String studentUUID,
-            @PathVariable ObjectId id
+            @PathVariable int id
     ) {
 
         return service.getAssignment(studentUUID, id);
@@ -52,21 +51,21 @@ public abstract class AssignmentController {
     @PutMapping("/{id}")
     public ResponseEntity<Assignment> update(
             @PathVariable String studentUUID,
-            @PathVariable String id,
+            @PathVariable int id,
             @Valid @RequestBody Assignment updated
     ) {
 
-        return service.updateAssignment(studentUUID, new ObjectId(id), updated);
+        return service.updateAssignment(studentUUID, id, updated);
 
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAssignment(
             @PathVariable String studentUUID,
-            @PathVariable String id
+            @PathVariable int id
     ) {
 
-        return service.deleteAssignment(studentUUID, new ObjectId(id));
+        return service.deleteAssignment(studentUUID, id);
 
     }
 }

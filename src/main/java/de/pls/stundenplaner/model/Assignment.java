@@ -1,30 +1,29 @@
 package de.pls.stundenplaner.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.bson.types.ObjectId;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
+import jakarta.persistence.*;
 
-import java.util.Date;
+import java.time.LocalDate;
 
-@Document(collection = "assignments")
-@Data
+@Entity
+@Table(name = "assignments")
 public class Assignment {
 
     @Id
-    private ObjectId id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
 
-    private String identifier;
+    private String studentUUID;
+    private LocalDate dueDate;
+
+    @Enumerated(EnumType.STRING)
     private Subject subject;
-    private Date dueDate;
 
-    public Assignment() {}
+    public Assignment() {
+    }
 
-    public Assignment(ObjectId id, String identifier, Subject subject, Date dueDate) {
+    public Assignment(int id, String studentUUID, Subject subject, LocalDate dueDate) {
         this.id = id;
-        this.identifier = identifier;
+        this.studentUUID = studentUUID;
         this.subject = subject;
         this.dueDate = dueDate;
     }
@@ -33,31 +32,31 @@ public class Assignment {
         this.subject = subject;
     }
 
-    public void setId(ObjectId id) {
+    public void setId(int id) {
         this.id = id;
     }
 
-    public void setIdentifier(String identifier) {
-        this.identifier = identifier;
+    public void setStudentUUID(String identifier) {
+        this.studentUUID = identifier;
     }
 
-    public void setDueDate(Date dueDate) {
+    public void setDueDate(LocalDate dueDate) {
         this.dueDate = dueDate;
     }
 
-    public ObjectId getId() {
+    public int getId() {
         return id;
     }
 
-    public String getIdentifier() {
-        return identifier;
+    public String getStudentUUID() {
+        return studentUUID;
     }
 
     public Subject getSubject() {
         return subject;
     }
 
-    public Date getDueDate() {
+    public LocalDate getDueDate() {
         return dueDate;
     }
 }
