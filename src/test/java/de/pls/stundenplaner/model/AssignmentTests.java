@@ -2,6 +2,9 @@ package de.pls.stundenplaner.model;
 
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
+import java.util.UUID;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 final class AssignmentTests {
@@ -9,21 +12,18 @@ final class AssignmentTests {
     @Test
     void testAssignmentGettersAndSetters() {
 
-        int id = 0;
-        String identifier = "Test";
+        UUID userUUID = UUID.randomUUID();
         Subject subject = Subject.GERMAN;
-//        LocalDate dueDate = new LocalDate();
+        LocalDate dueDate = LocalDate.now();
 
         Assignment assignment = new Assignment();
-        assignment.setId(id);
         assignment.setSubject(subject);
-        assignment.setStudentUUID(identifier);
-        // assignment.setDueDate(dueDate);
+        assignment.setUserUUID(userUUID);
+        assignment.setDueDate(dueDate);
 
-        assertEquals(id, assignment.getId());
-        assertEquals(identifier, assignment.getStudentUUID());
+        assertEquals(userUUID, assignment.getUserUUID());
         assertEquals(subject, assignment.getSubject());
-        // assertEquals(dueDate, assignment.getDueDate());
+        assertEquals(dueDate, assignment.getDueDate());
 
     }
 

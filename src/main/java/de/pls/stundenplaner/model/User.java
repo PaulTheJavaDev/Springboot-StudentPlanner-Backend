@@ -24,11 +24,12 @@ public class User {
     @JsonProperty("password_hash")
     private String password_hash;
 
-    protected User() {
-        // JPA benötigt einen Default-Konstruktor
-    }
+    protected User() {}
 
-    public User(final @NotNull String username, final @NotNull String password_hash) {
+    public User(
+            final @NotNull String username,
+            final @NotNull String password_hash
+    ) {
         this.username = username;
         this.password_hash = password_hash;
     }
@@ -63,4 +64,9 @@ public class User {
     public void setPassword_hash(String passwordHash) {
         this.password_hash = passwordHash;
     }
+
+    public void setUserUUID(UUID userUUID) {
+        this.userUUID = userUUID;
+    }
+
 }

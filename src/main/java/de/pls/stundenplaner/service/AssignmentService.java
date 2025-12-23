@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Service layer of the {@link Assignment} class
@@ -26,7 +27,7 @@ public final class AssignmentService {
      * Gets all Assignments saved from a User in the Database
      */
     public ResponseEntity<List<Assignment>> getAllAssignmentsForUser(
-            @NotNull final String userUUID
+            @NotNull final UUID userUUID
     ) {
 
         Optional<List<Assignment>> assignments = assignmentRepository.findAssignmentsByStudentUUID(userUUID);
@@ -41,11 +42,11 @@ public final class AssignmentService {
      * Get a single Assignment from a User
      */
     public ResponseEntity<Assignment> getAssignment(
-            @NotNull final String userUUID,
+            @NotNull final UUID userUUID,
             final int assignmentId
     ) {
 
-        Optional<Assignment> searchedAssignment = assignmentRepository.findAssignmentByStudentUUIDAndId(userUUID, assignmentId);
+        Optional<Assignment> searchedAssignment = assignmentRepository.findAssignmentByUserUUIDAndId(userUUID, assignmentId);
 
         return searchedAssignment.map(
                 assignment -> new ResponseEntity<>(assignment, HttpStatus.OK)
@@ -57,10 +58,10 @@ public final class AssignmentService {
      * Creates an Assignment
      */
     public ResponseEntity<Assignment> createAssignment(
-            @NotNull final String userUUID,
+            @NotNull final UUID userUUID,
             @NotNull final Assignment assignment
     ) {
-        assignment.setStudentUUID(userUUID);
+        assignment.setUserUUID(userUUID);
 
         return new ResponseEntity<>(assignmentRepository.save(assignment), HttpStatus.CREATED);
     }
@@ -70,11 +71,11 @@ public final class AssignmentService {
      * @param updated Container of the To-Update-Information for the found Assignment
      */
     public ResponseEntity<Assignment> updateAssignment(
-            @NotNull final String userUUID,
+            @NotNull final UUID userUUID,
             final int id,
             @NotNull final Assignment updated
     ) {
-        final Optional<Assignment> assignmentToUpdate = assignmentRepository.findAssignmentByStudentUUIDAndId(userUUID, id);
+        final Optional<Assignment> assignmentToUpdate = assignmentRepository.findAssignmentByUserUUIDAndId(userUUID, id);
 
         if (assignmentToUpdate.isEmpty()) {
             return new  ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -91,10 +92,10 @@ public final class AssignmentService {
      * Deletes an Assignment
      */
     public ResponseEntity<Void> deleteAssignment(
-            @NotNull final String studentUUID,
+            @NotNull final UUID studentUUID,
             final int id
     ) {
-        final Optional<Assignment> assignmentToDelete = assignmentRepository.findAssignmentByStudentUUIDAndId(studentUUID, id);
+        final Optional<Assignment> assignmentToDelete = assignmentRepository.findAssignmentByUserUUIDAndId(studentUUID, id);
 
         if (assignmentToDelete.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

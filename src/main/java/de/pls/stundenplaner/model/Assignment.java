@@ -3,7 +3,9 @@ package de.pls.stundenplaner.model;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
+@SuppressWarnings("all")
 @Entity
 @Table(name = "assignments")
 public class Assignment {
@@ -12,30 +14,32 @@ public class Assignment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    /**
-     * Identifier with the user
-     */
-    private String studentUUID;
+    private UUID userUUID;
     private LocalDate dueDate;
 
     @Enumerated(EnumType.STRING)
     private Subject subject;
 
-    protected Assignment() {}
+    public Assignment() {}
 
-    public Assignment(int id, String studentUUID, Subject subject, LocalDate dueDate) {
-        this.id = id;
-        this.studentUUID = studentUUID;
+    public Assignment(
+            UUID userUUID,
+            Subject subject,
+            LocalDate dueDate
+    ) {
+
+        this.userUUID = userUUID;
         this.subject = subject;
         this.dueDate = dueDate;
+
     }
 
     public void setSubject(Subject subject) {
         this.subject = subject;
     }
 
-    public void setStudentUUID(String identifier) {
-        this.studentUUID = identifier;
+    public void setUserUUID(UUID userUUID) {
+        this.userUUID = userUUID;
     }
 
     public void setDueDate(LocalDate dueDate) {
@@ -46,8 +50,8 @@ public class Assignment {
         return id;
     }
 
-    public String getStudentUUID() {
-        return studentUUID;
+    public UUID getUserUUID() {
+        return userUUID;
     }
 
     public Subject getSubject() {

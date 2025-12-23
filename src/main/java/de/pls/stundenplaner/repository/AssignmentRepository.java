@@ -6,12 +6,13 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface AssignmentRepository extends JpaRepository<Assignment, Integer> {
 
-    @Query("SELECT a FROM Assignment a WHERE a.studentUUID = :studentUUID")
-    Optional<List<Assignment>> findAssignmentsByStudentUUID(final String studentUUID);
+    @Query("SELECT a FROM Assignment a WHERE a.userUUID = :userUUID")
+    Optional<List<Assignment>> findAssignmentsByStudentUUID(final UUID userUUID);
 
-    Optional<Assignment> findAssignmentByStudentUUIDAndId(final String studentUUID, final int id);
+    Optional<Assignment> findAssignmentByUserUUIDAndId(final UUID studentUUID, final int id);
 
 }

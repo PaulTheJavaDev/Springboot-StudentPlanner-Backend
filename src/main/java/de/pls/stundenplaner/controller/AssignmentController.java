@@ -7,10 +7,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 
 @RestController
-@RequestMapping("/students/{studentUUID}/assignments")
+@RequestMapping("/students/{userUUID}/assignments")
 public class AssignmentController {
 
     private final AssignmentService service;
@@ -21,51 +22,51 @@ public class AssignmentController {
 
     @GetMapping
     public ResponseEntity<List<Assignment>> getAllAssignmentsForUser(
-            @PathVariable String studentUUID
+            @PathVariable UUID userUUID
     ) {
 
-        return service.getAllAssignmentsForUser(studentUUID);
+        return service.getAllAssignmentsForUser(userUUID);
 
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Assignment> getAssignment(
-            @PathVariable String studentUUID,
+            @PathVariable UUID userUUID,
             @PathVariable int id
     ) {
 
-        return service.getAssignment(studentUUID, id);
+        return service.getAssignment(userUUID, id);
 
     }
 
     @PostMapping
     public ResponseEntity<Assignment> create(
-            @PathVariable String studentUUID,
+            @PathVariable UUID userUUID,
             @Valid @RequestBody Assignment assignment
     ) {
 
-        return service.createAssignment(studentUUID, assignment);
+        return service.createAssignment(userUUID, assignment);
 
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Assignment> update(
-            @PathVariable String studentUUID,
+            @PathVariable UUID userUUID,
             @PathVariable int id,
             @Valid @RequestBody Assignment updated
     ) {
 
-        return service.updateAssignment(studentUUID, id, updated);
+        return service.updateAssignment(userUUID, id, updated);
 
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAssignment(
-            @PathVariable String studentUUID,
+            @PathVariable UUID userUUID,
             @PathVariable int id
     ) {
 
-        return service.deleteAssignment(studentUUID, id);
+        return service.deleteAssignment(userUUID, id);
 
     }
 }
