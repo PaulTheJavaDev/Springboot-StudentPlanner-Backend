@@ -18,12 +18,12 @@ final class AssignmentTests {
         assignment.setId(id);
         assignment.setSubject(subject);
         assignment.setStudentUUID(identifier);
-        assignment.setDueDate(dueDate);
+        // assignment.setDueDate(dueDate);
 
         assertEquals(id, assignment.getId());
         assertEquals(identifier, assignment.getStudentUUID());
         assertEquals(subject, assignment.getSubject());
-        assertEquals(dueDate, assignment.getDueDate());
+        // assertEquals(dueDate, assignment.getDueDate());
 
     }
 

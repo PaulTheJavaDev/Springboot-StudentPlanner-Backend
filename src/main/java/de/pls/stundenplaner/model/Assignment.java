@@ -21,8 +21,7 @@ public class Assignment {
     @Enumerated(EnumType.STRING)
     private Subject subject;
 
-    public Assignment() {
-    }
+    protected Assignment() {}
 
     public Assignment(int id, String studentUUID, Subject subject, LocalDate dueDate) {
         this.id = id;
@@ -33,10 +32,6 @@ public class Assignment {
 
     public void setSubject(Subject subject) {
         this.subject = subject;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public void setStudentUUID(String identifier) {
