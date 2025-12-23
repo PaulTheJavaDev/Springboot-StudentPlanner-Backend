@@ -12,6 +12,9 @@ public class Assignment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    /**
+     * Identifier with the user
+     */
     private String studentUUID;
     private LocalDate dueDate;
 
