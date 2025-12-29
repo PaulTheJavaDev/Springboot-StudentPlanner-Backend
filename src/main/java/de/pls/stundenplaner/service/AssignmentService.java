@@ -68,6 +68,7 @@ public final class AssignmentService {
 
     /**
      * Updates an Assignment
+     *
      * @param updated Container of the To-Update-Information for the found Assignment
      */
     public ResponseEntity<Assignment> updateAssignment(
@@ -78,7 +79,7 @@ public final class AssignmentService {
         final Optional<Assignment> assignmentToUpdate = assignmentRepository.findAssignmentByUserUUIDAndId(userUUID, id);
 
         if (assignmentToUpdate.isEmpty()) {
-            return new  ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
         Assignment assignment = assignmentToUpdate.get();
@@ -103,6 +104,6 @@ public final class AssignmentService {
 
         assignmentRepository.delete(assignmentToDelete.get());
 
-        return new  ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

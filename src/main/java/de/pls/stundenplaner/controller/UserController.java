@@ -18,16 +18,16 @@ public class UserController {
         this.userService = userService;
     }
 
+    @GetMapping
+    public ResponseEntity<List<User>> getUsers() {
+        return userService.getUsers();
+    }
+
     @PostMapping
     public ResponseEntity<User> createUser(
             @RequestBody @Valid final User user
     ) {
         return userService.createUser(user);
-    }
-
-    @GetMapping
-    public ResponseEntity<List<User>> getUsers() {
-        return userService.getUsers();
     }
 
     @GetMapping("/{id}")

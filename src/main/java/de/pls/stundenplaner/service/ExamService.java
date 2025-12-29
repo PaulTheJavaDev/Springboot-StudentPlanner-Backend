@@ -4,10 +4,8 @@ import de.pls.stundenplaner.model.Exam;
 import de.pls.stundenplaner.repository.ExamRepository;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,6 +26,7 @@ public class ExamService {
 
     /**
      * Gets All Exams available for a User and gives them with a proper {@link HttpStatus} back
+     *
      * @return StatusCode and a List of Exams
      */
     public ResponseEntity<List<Exam>> getAllExams(final UUID userUUID) {
@@ -43,6 +42,7 @@ public class ExamService {
 
     /**
      * Gets an Exam Entity by an Integer id
+     *
      * @param id ID to identify the Exam to be searched for
      * @return StatusCode and the Exam Entity
      */
@@ -64,8 +64,9 @@ public class ExamService {
 
     /**
      * Updates an already existing Exam
-     * @param userUUID UserUUID to search for
-     * @param examId ExamId to search for
+     *
+     * @param userUUID        UserUUID to search for
+     * @param examId          ExamId to search for
      * @param examUpdateInfos An Exam object containing the new values for the exam.
      * @return Proper {@link HttpStatus} with the updated Exam Object
      */
@@ -93,7 +94,7 @@ public class ExamService {
 
     /**
      *
-     * @param userUUID UserUUID for searching in the Database
+     * @param userUUID     UserUUID for searching in the Database
      * @param examToCreate Body as a {@link Exam}
      * @return Proper {@link HttpStatus} and valid {@link Exam} Entity
      */
@@ -105,8 +106,7 @@ public class ExamService {
         if (
                 examToCreate.getNotes() == null ||
                         examToCreate.getNotes().isEmpty() ||
-                        examToCreate.getDueDate() == null ||
-                        examToCreate.getUserUUID() == null
+                        examToCreate.getDueDate() == null
         ) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
@@ -120,8 +120,9 @@ public class ExamService {
 
     /**
      * Deletes an {@link Exam} Entity from the Database for a specified User
+     *
      * @param userUUID UserUUID to search for
-     * @param examId ExamId to search for
+     * @param examId   ExamId to search for
      * @return Proper {@link HttpStatus}
      */
     public ResponseEntity<Void> deleteExam(

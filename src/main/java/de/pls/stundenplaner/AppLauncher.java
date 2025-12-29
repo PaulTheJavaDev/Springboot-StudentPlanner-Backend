@@ -10,8 +10,6 @@ public class AppLauncher {
 
     public static void main(String[] args) {
 
-        System.out.println(UUID.randomUUID());
-
         SpringApplication.run(AppLauncher.class, args);
 
     }

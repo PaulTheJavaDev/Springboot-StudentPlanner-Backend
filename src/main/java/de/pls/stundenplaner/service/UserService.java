@@ -19,14 +19,16 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public ResponseEntity<User> createUser(final @NotNull User user) {
+    public ResponseEntity<User> createUser(
+            final @NotNull User user
+    ) {
 
         if (
                 checkUserExistenceById(user.getId()) ||
-                user.getUsername() == null      ||
-                user.getUsername().isEmpty()    ||
-                user.getPassword_hash() == null ||
-                user.getPassword_hash().isEmpty()
+                        user.getUsername() == null ||
+                        user.getUsername().isEmpty() ||
+                        user.getPassword_hash() == null ||
+                        user.getPassword_hash().isEmpty()
         ) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }

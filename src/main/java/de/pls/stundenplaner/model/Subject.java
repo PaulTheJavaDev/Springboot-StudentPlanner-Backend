@@ -5,6 +5,7 @@ public enum Subject {
     MATH("Math"),
     GERMAN("German");
 
-    Subject(String name) {}
+    Subject(String name) {
+    }
 
 }

@@ -3,6 +3,7 @@ package de.pls.stundenplaner.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+
 import java.util.UUID;
 
 @Entity
@@ -24,7 +25,8 @@ public class User {
     @JsonProperty("password_hash")
     private String password_hash;
 
-    protected User() {}
+    protected User() {
+    }
 
     public User(
             final @NotNull String username,

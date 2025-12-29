@@ -3,7 +3,6 @@ package de.pls.stundenplaner.controller;
 import de.pls.stundenplaner.model.Exam;
 import de.pls.stundenplaner.service.ExamService;
 import jakarta.validation.Valid;
-import org.springframework.boot.web.servlet.ServletContextInitializer;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,12 +13,10 @@ import java.util.UUID;
 @RequestMapping("/exams/{userUUID}")
 public class ExamController {
 
-    private final ServletContextInitializer servletContextInitializer;
-    private ExamService examService;
+    private final ExamService examService;
 
-    public ExamController(ExamService examService, ServletContextInitializer servletContextInitializer) {
+    public ExamController(ExamService examService) {
         this.examService = examService;
-        this.servletContextInitializer = servletContextInitializer;
     }
 
     @GetMapping

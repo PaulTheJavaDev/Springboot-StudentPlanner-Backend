@@ -20,7 +20,8 @@ public class Assignment {
     @Enumerated(EnumType.STRING)
     private Subject subject;
 
-    public Assignment() {}
+    public Assignment() {
+    }
 
     public Assignment(
             UUID userUUID,

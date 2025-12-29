@@ -27,11 +27,22 @@ public class Exam {
     @Column(nullable = false)
     private LocalDate dueDate;
 
+    public Exam(
+            final @NotNull Subject subject,
+            final @NotNull String notes,
+            final @NotNull LocalDate dueDate
+    ) {
+        this.subject = subject;
+        this.notes = notes;
+        this.dueDate = dueDate;
+    }
+
     public void setUserUUID(UUID userUUID) {
         this.userUUID = userUUID;
     }
 
-    protected Exam() {}
+    protected Exam() {
+    }
 
     public UUID getUserUUID() {
         return userUUID;
@@ -46,16 +57,6 @@ public class Exam {
     }
 
     public void setDueDate(LocalDate dueDate) {
-        this.dueDate = dueDate;
-    }
-
-    public Exam(
-            final @NotNull Subject subject,
-            final @NotNull String notes,
-            final @NotNull LocalDate dueDate
-    ) {
-        this.subject = subject;
-        this.notes = notes;
         this.dueDate = dueDate;
     }
 
