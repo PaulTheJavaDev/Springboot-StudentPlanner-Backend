@@ -1,6 +1,4 @@
-package de.pls.stundenplaner.dto;
-
-import de.pls.stundenplaner.dto.auth.AuthRequest;
+package de.pls.stundenplaner.dto.request.auth;
 
 public class LoginRequest extends AuthRequest {
 }

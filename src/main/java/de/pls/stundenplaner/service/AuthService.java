@@ -1,7 +1,7 @@
 package de.pls.stundenplaner.service;
 
-import de.pls.stundenplaner.dto.LoginRequest;
-import de.pls.stundenplaner.dto.RegisterRequest;
+import de.pls.stundenplaner.dto.request.auth.LoginRequest;
+import de.pls.stundenplaner.dto.request.auth.RegisterRequest;
 import de.pls.stundenplaner.model.User;
 import de.pls.stundenplaner.repository.UserRepository;
 import de.pls.stundenplaner.util.PasswordHasher;
@@ -11,6 +11,7 @@ import io.micrometer.common.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Handles the Authentication process.
@@ -28,7 +29,7 @@ public class AuthService {
      * Login a user with given credentials.
      * Throws {@link de.pls.stundenplaner.util.exceptions.InvalidLoginException} if username doesn't exist or password is wrong.
      */
-    public boolean checkLogin(
+    public UUID checkLogin(
             @NonNull LoginRequest loginRequest
     ) {
 
@@ -38,10 +39,13 @@ public class AuthService {
             throw new InvalidLoginException();
         }
 
-        User user = optionalUser.get();
-        String hashedPassword = PasswordHasher.sha256(loginRequest.getPassword());
+        UUID sessionID = UUID.randomUUID();
 
-        return user.getPassword_hash().equals(hashedPassword);
+        User user = optionalUser.get();
+        user.setSessionID(sessionID);
+        userRepository.save(user);
+
+        return user.getSessionID();
 
     }
 

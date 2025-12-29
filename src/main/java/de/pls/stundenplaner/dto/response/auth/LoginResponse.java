@@ -1,4 +1,5 @@
-package de.pls.stundenplaner.dto.response;
+package de.pls.stundenplaner.dto.response.auth;
 
-public class LoginResponse {
-}
+import java.util.UUID;
+
+public record LoginResponse(UUID sessionID) {}

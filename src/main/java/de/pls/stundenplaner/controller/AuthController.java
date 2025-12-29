@@ -1,7 +1,8 @@
 package de.pls.stundenplaner.controller;
 
-import de.pls.stundenplaner.dto.LoginRequest;
-import de.pls.stundenplaner.dto.RegisterRequest;
+import de.pls.stundenplaner.dto.request.auth.LoginRequest;
+import de.pls.stundenplaner.dto.request.auth.RegisterRequest;
+import de.pls.stundenplaner.dto.response.auth.LoginResponse;
 import de.pls.stundenplaner.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -10,6 +11,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import java.util.UUID;
 
 /**
  * REST-Point handler for the Authentication process
@@ -29,23 +32,12 @@ public class AuthController {
      * @param loginRequest DTO containing username and password
      */
     @PostMapping("/login")
-    public ResponseEntity<String> login(
+    public ResponseEntity<LoginResponse> login(
             @RequestBody LoginRequest loginRequest
     ) {
 
-        final String successMessage = "Login successful!";
-        final String failMessage = """
-                Login Unsuccessful.
-                Please make sure that Username and Password fields are correct.
-                """;
-
-        boolean success = authService.checkLogin(loginRequest);
-
-        if (success) {
-            return new ResponseEntity<>(successMessage, HttpStatus.OK);
-        }
-
-        return new ResponseEntity<>(failMessage, HttpStatus.UNAUTHORIZED);
+        UUID sessionID = authService.checkLogin(loginRequest);
+        return new ResponseEntity<>(new LoginResponse(sessionID), HttpStatus.OK);
 
     }
 

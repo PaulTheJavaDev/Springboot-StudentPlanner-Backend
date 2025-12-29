@@ -1,11 +1,13 @@
 package de.pls.stundenplaner.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.micrometer.common.lang.NonNull;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
 import java.util.UUID;
 
+@SuppressWarnings("all")
 @Entity
 @Table(name = "users")
 public class User {
@@ -25,12 +27,16 @@ public class User {
     @JsonProperty("password_hash")
     private String password_hash;
 
+    @Column(unique = true)
+    @JsonProperty("sessionID")
+    private UUID sessionID;
+
     protected User() {
     }
 
     public User(
-            final @NotNull String username,
-            final @NotNull String password_hash
+            @NonNull String username,
+            @NonNull String password_hash
     ) {
         this.username = username;
         this.password_hash = password_hash;
@@ -41,6 +47,14 @@ public class User {
         if (userUUID == null) {
             userUUID = UUID.randomUUID();
         }
+    }
+
+    public void setSessionID(UUID sessionID) {
+        this.sessionID = sessionID;
+    }
+
+    public UUID getSessionID() {
+        return sessionID;
     }
 
     public int getId() {
