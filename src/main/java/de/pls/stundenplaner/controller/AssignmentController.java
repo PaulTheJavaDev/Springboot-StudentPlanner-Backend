@@ -11,7 +11,7 @@ import java.util.UUID;
 
 
 @RestController
-@RequestMapping("/students/{userUUID}/assignments")
+@RequestMapping("/assignments/my")
 public class AssignmentController {
 
     private final AssignmentService service;
@@ -21,52 +21,49 @@ public class AssignmentController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Assignment>> getAllAssignmentsForUser(
-            @PathVariable UUID userUUID
+    public ResponseEntity<List<Assignment>> getMyAssignments(
+            @RequestHeader(name = "SessionID") UUID sessionID
     ) {
 
-        return service.getAllAssignmentsForUser(userUUID);
+        return service.getAssignments(sessionID);
 
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Assignment> getAssignment(
-            @PathVariable UUID userUUID,
             @PathVariable int id
     ) {
 
-        return service.getAssignment(userUUID, id);
+        return service.getAssignment(id);
 
     }
 
     @PostMapping
     public ResponseEntity<Assignment> create(
-            @PathVariable UUID userUUID,
+            @RequestHeader(name = "SessionID") UUID sessionID,
             @Valid @RequestBody Assignment assignment
     ) {
 
-        return service.createAssignment(userUUID, assignment);
+        return service.createAssignment(sessionID, assignment);
 
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Assignment> update(
-            @PathVariable UUID userUUID,
             @PathVariable int id,
             @Valid @RequestBody Assignment updated
     ) {
 
-        return service.updateAssignment(userUUID, id, updated);
+        return service.updateAssignment(id, updated);
 
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAssignment(
-            @PathVariable UUID userUUID,
             @PathVariable int id
     ) {
 
-        return service.deleteAssignment(userUUID, id);
+        return service.deleteAssignment(id);
 
     }
 }

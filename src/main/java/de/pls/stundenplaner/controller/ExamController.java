@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/exams/{userUUID}")
+@RequestMapping("/exams/my")
 public class ExamController {
 
     private final ExamService examService;
@@ -20,40 +20,40 @@ public class ExamController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Exam>> findExamsByUserUUID(final @PathVariable UUID userUUID) {
-        return examService.getAllExams(userUUID);
+    public ResponseEntity<List<Exam>> findExamsByUserUUID(
+            final @RequestHeader("SessionID") UUID sessionID
+    ) {
+
+        return examService.getAllExams(sessionID);
+
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{examId}")
     public ResponseEntity<Exam> findExamById(
-            final @PathVariable UUID userUUID,
-            final @PathVariable int id
+            final @PathVariable int examId
     ) {
-        return examService.getExam(userUUID, id);
+        return examService.getExam(examId);
     }
 
     @PostMapping
     public ResponseEntity<Exam> addExam(
-            final @PathVariable UUID userUUID,
-            @RequestBody Exam exam
+            final @RequestBody Exam examBody
     ) {
-        return examService.createExam(userUUID, exam);
+        return examService.createExam(examBody);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{examId}")
     public ResponseEntity<Exam> updateExam(
-            final @PathVariable UUID userUUID,
-            final @PathVariable int id,
-            final @Valid @RequestBody Exam exam
+            final @PathVariable int examId,
+            final @Valid @RequestBody Exam examBody
     ) {
-        return examService.updateExam(userUUID, id, exam);
+        return examService.updateExam(examId, examBody);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{examId}")
     public ResponseEntity<Void> deleteExam(
-            @PathVariable UUID userUUID,
-            @PathVariable int id
+            final @PathVariable int examId
     ) {
-        return examService.deleteExam(userUUID, id);
+        return examService.deleteExam(examId);
     }
 }

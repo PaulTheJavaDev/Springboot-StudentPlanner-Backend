@@ -1,7 +1,10 @@
 package de.pls.stundenplaner.service;
 
 import de.pls.stundenplaner.model.Exam;
+import de.pls.stundenplaner.model.User;
 import de.pls.stundenplaner.repository.ExamRepository;
+import de.pls.stundenplaner.repository.UserRepository;
+import de.pls.stundenplaner.util.exceptions.InvalidSessionException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.http.HttpStatus;
@@ -19,9 +22,11 @@ import java.util.UUID;
 public class ExamService {
 
     private final ExamRepository examRepository;
+    private final UserRepository userRepository;
 
-    public ExamService(ExamRepository examRepository) {
+    public ExamService(ExamRepository examRepository, UserRepository userRepository) {
         this.examRepository = examRepository;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -29,9 +34,14 @@ public class ExamService {
      *
      * @return StatusCode and a List of Exams
      */
-    public ResponseEntity<List<Exam>> getAllExams(final UUID userUUID) {
+    public ResponseEntity<List<Exam>> getAllExams(
+            final UUID sessionID
+    ) {
 
-        List<Exam> exams = examRepository.findExamsByUserUUID(userUUID);
+        User user = userRepository.findBySessionID(sessionID)
+                .orElseThrow(InvalidSessionException::new);
+
+        List<Exam> exams = examRepository.findExamsByUserUUID(user.getUserUUID());
 
         if (exams.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -41,20 +51,16 @@ public class ExamService {
     }
 
     /**
-     * Gets an Exam Entity by an Integer id
+     * Gets an Exam Entity by an Integer examId
      *
-     * @param id ID to identify the Exam to be searched for
+     * @param examId ID to identify the Exam to be searched for
      * @return StatusCode and the Exam Entity
      */
     public ResponseEntity<Exam> getExam(
-            final UUID userUUID,
-            final int id
+            final int examId
     ) {
 
-        Optional<Exam> examToFind = examRepository.findExamByUserUUIDAndId(
-                userUUID,
-                id
-        );
+        Optional<Exam> examToFind = examRepository.findById(examId);
 
         return examToFind.map(
                 value -> new ResponseEntity<>(value, HttpStatus.OK)
@@ -65,18 +71,15 @@ public class ExamService {
     /**
      * Updates an already existing Exam
      *
-     * @param userUUID        UserUUID to search for
-     * @param examId          ExamId to search for
      * @param examUpdateInfos An Exam object containing the new values for the exam.
      * @return Proper {@link HttpStatus} with the updated Exam Object
      */
     public ResponseEntity<Exam> updateExam(
-            final @NotNull UUID userUUID,
             final int examId,
             final @NotNull @Valid Exam examUpdateInfos
     ) {
 
-        Optional<Exam> examOptional = examRepository.findExamByUserUUIDAndId(userUUID, examId);
+        Optional<Exam> examOptional = examRepository.findById(examId);
 
         if (examOptional.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -94,24 +97,21 @@ public class ExamService {
 
     /**
      *
-     * @param userUUID     UserUUID for searching in the Database
      * @param examToCreate Body as a {@link Exam}
      * @return Proper {@link HttpStatus} and valid {@link Exam} Entity
      */
     public ResponseEntity<Exam> createExam(
-            final @NotNull UUID userUUID,
             final @NotNull @Valid Exam examToCreate
     ) {
 
         if (
                 examToCreate.getNotes() == null ||
-                        examToCreate.getNotes().isEmpty() ||
-                        examToCreate.getDueDate() == null
+                examToCreate.getNotes().isEmpty() ||
+                examToCreate.getDueDate() == null
         ) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
-        examToCreate.setUserUUID(userUUID); // Ensures that it saves for the User given in the Parameters
         final Exam saved = examRepository.save(examToCreate);
 
         return new ResponseEntity<>(saved, HttpStatus.OK);
@@ -121,16 +121,13 @@ public class ExamService {
     /**
      * Deletes an {@link Exam} Entity from the Database for a specified User
      *
-     * @param userUUID UserUUID to search for
-     * @param examId   ExamId to search for
      * @return Proper {@link HttpStatus}
      */
     public ResponseEntity<Void> deleteExam(
-            final @NotNull @Valid UUID userUUID,
             final @NotNull @Valid int examId
     ) {
 
-        Optional<Exam> examToDelete = examRepository.findExamByUserUUIDAndId(userUUID, examId);
+        Optional<Exam> examToDelete = examRepository.findById(examId);
 
         if (examToDelete.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

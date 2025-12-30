@@ -14,11 +14,12 @@ public class Assignment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    private UUID userUUID;
-    private LocalDate dueDate;
-
     @Enumerated(EnumType.STRING)
     private Subject subject;
+
+    private UUID userUUID;
+    private LocalDate dueDate;
+    private boolean completed;
 
     public Assignment() {
     }
@@ -32,7 +33,16 @@ public class Assignment {
         this.userUUID = userUUID;
         this.subject = subject;
         this.dueDate = dueDate;
+        this.completed = false;
 
+    }
+
+    public void setCompleted(boolean completed) {
+        this.completed = completed;
+    }
+
+    public boolean isCompleted() {
+        return completed;
     }
 
     public void setSubject(Subject subject) {
