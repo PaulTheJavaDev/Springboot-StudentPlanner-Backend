@@ -26,9 +26,7 @@ public final class AssignmentService {
     }
 
     public ResponseEntity<List<Assignment>> getAssignments(
-            @NonNull UUID sessionID,
-            SortCondition sortingCondition,
-            SortDirection sortDirection
+            @NonNull UUID sessionID
     ) {
 
         User user = validateSession(sessionID);
@@ -36,7 +34,7 @@ public final class AssignmentService {
         Optional<List<Assignment>> assignments = assignmentRepository.findAssignmentsByStudentUUID(user.getUserUUID());
 
         return assignments.map(
-                assignmentList -> new ResponseEntity<>(sortAssignments(assignmentList, sortingCondition, sortDirection), HttpStatus.OK)
+                assignmentList -> new ResponseEntity<>(assignmentList, HttpStatus.OK)
         ).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
 
     }

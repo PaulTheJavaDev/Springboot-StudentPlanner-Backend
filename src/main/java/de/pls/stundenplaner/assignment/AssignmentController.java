@@ -24,12 +24,10 @@ public class AssignmentController {
     // TODO: add ascending and descending
     @GetMapping
     public ResponseEntity<List<Assignment>> getMyAssignments(
-            @RequestHeader(name = "SessionID") UUID sessionID,
-            @RequestHeader(name = "SortCondition") SortCondition sortCondition,
-            @RequestHeader(name = "SortDirection")SortDirection sortDirection
+            @RequestHeader(name = "SessionID") UUID sessionID
     ) {
 
-        return service.getAssignments(sessionID, sortCondition, sortDirection);
+        return service.getAssignments(sessionID);
 
     }
 

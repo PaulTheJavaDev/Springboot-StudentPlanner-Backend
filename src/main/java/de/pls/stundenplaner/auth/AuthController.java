@@ -50,10 +50,8 @@ public class AuthController {
             @RequestBody @Valid RegisterRequest registerRequest
     ) {
 
-        final String successMessage = "Register successful!";
-
         authService.registerUser(registerRequest);
-        return new ResponseEntity<>(successMessage, HttpStatus.OK);
+        return new ResponseEntity<>("Register successful!", HttpStatus.OK);
 
     }
 }

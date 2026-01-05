@@ -21,17 +21,20 @@ public class Assignment {
     private UUID userUUID;
     private LocalDate dueDate;
     private boolean completed;
+    private String notes;
 
     public Assignment() {
     }
 
     public Assignment(
             Subject subject,
-            LocalDate dueDate
+            LocalDate dueDate,
+            String notes
     ) {
 
         this.subject = subject;
         this.dueDate = dueDate;
+        this.notes = notes;
         this.completed = false;
 
     }
@@ -70,5 +73,13 @@ public class Assignment {
 
     public LocalDate getDueDate() {
         return dueDate;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
     }
 }
