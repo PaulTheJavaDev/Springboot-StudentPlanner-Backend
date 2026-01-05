@@ -14,7 +14,10 @@ public class Lesson {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "subject", nullable = false)
     private Subject subject;
+
     private LocalTime startTime;
     private LocalTime endTime;
     private UUID userUUID;

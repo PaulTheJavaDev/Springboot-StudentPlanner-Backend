@@ -26,6 +26,9 @@ public class User {
     @JsonProperty("password_hash")
     private String password_hash;
 
+    /**
+     * Nullable because the User should get a new session only if they are actively logged in, not when they are logged out.
+     */
     @Column(unique = true)
     @JsonProperty("sessionID")
     private UUID sessionID;

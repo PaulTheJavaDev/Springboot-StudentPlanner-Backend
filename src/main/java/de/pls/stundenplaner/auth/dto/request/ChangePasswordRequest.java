@@ -1,9 +1,11 @@
 package de.pls.stundenplaner.auth.dto.request;
 
-import de.pls.stundenplaner.util.PasswordHasher;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
+/**
+ * DTO for the password and newPassword of a User for a Password change
+ */
 @SuppressWarnings("all")
 public class ChangePasswordRequest {
 

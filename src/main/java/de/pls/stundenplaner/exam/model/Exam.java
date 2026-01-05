@@ -16,7 +16,8 @@ public class Exam {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
 
-    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    @Column(name = "subject", nullable = false)
     private Subject subject;
 
     @Column(nullable = false)

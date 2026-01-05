@@ -59,7 +59,8 @@ public class ExamService {
             final int examId,
             @NonNull @Valid Exam examUpdateInfos
     ) {
-        validateSession(sessionID);
+
+        User user = validateSession(sessionID);
 
         Optional<Exam> examOptional = examRepository.findById(examId);
 
@@ -67,11 +68,12 @@ public class ExamService {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
-        final Exam exam = examOptional.get();
+        Exam exam = examOptional.get();
 
         exam.setNotes(examUpdateInfos.getNotes());
         exam.setSubject(examUpdateInfos.getSubject());
         exam.setDueDate(examUpdateInfos.getDueDate());
+        exam.setUserUUID(user.getUserUUID());
 
         return new ResponseEntity<>(examRepository.save(exam), HttpStatus.OK);
 
@@ -81,7 +83,7 @@ public class ExamService {
             @NonNull UUID sessionID,
             @NonNull @Valid Exam examToCreate
     ) {
-        validateSession(sessionID);
+        User user = validateSession(sessionID);
 
         if (
                 examToCreate.getNotes() == null ||
@@ -91,6 +93,7 @@ public class ExamService {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
+        examToCreate.setUserUUID(user.getUserUUID());
         final Exam savedExam = examRepository.save(examToCreate);
 
         return new ResponseEntity<>(savedExam, HttpStatus.OK);
@@ -114,7 +117,7 @@ public class ExamService {
 
     }
 
-    private User validateSession(UUID sessionID) {
+    private User validateSession(@NonNull UUID sessionID) {
         return userRepository.findBySessionID(sessionID).orElseThrow(InvalidSessionException::new);
     }
 

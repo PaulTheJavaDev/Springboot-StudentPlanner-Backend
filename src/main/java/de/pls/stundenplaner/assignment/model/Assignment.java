@@ -26,12 +26,10 @@ public class Assignment {
     }
 
     public Assignment(
-            UUID userUUID,
             Subject subject,
             LocalDate dueDate
     ) {
 
-        this.userUUID = userUUID;
         this.subject = subject;
         this.dueDate = dueDate;
         this.completed = false;

@@ -1,13 +1,15 @@
 package de.pls.stundenplaner.assignment;
 
 import de.pls.stundenplaner.assignment.model.Assignment;
+import de.pls.stundenplaner.assignment.model.sorting.SortCondition;
+import de.pls.stundenplaner.assignment.model.sorting.SortDirection;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
-
 
 @RestController
 @RequestMapping("/assignments/my")
@@ -19,12 +21,15 @@ public class AssignmentController {
         this.service = service;
     }
 
+    // TODO: add ascending and descending
     @GetMapping
     public ResponseEntity<List<Assignment>> getMyAssignments(
-            @RequestHeader(name = "SessionID") UUID sessionID
+            @RequestHeader(name = "SessionID") UUID sessionID,
+            @RequestHeader(name = "SortCondition") SortCondition sortCondition,
+            @RequestHeader(name = "SortDirection")SortDirection sortDirection
     ) {
 
-        return service.getAssignments(sessionID);
+        return service.getAssignments(sessionID, sortCondition, sortDirection);
 
     }
 

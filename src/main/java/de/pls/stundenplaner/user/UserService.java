@@ -4,7 +4,7 @@ import de.pls.stundenplaner.auth.dto.request.ChangePasswordRequest;
 import de.pls.stundenplaner.auth.exceptions.InvalidSessionException;
 import de.pls.stundenplaner.user.model.User;
 import de.pls.stundenplaner.util.PasswordHasher;
-import io.micrometer.common.lang.NonNull;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,11 +24,11 @@ public class UserService {
     }
 
     public ResponseEntity<User> createUser(
-            final @NotNull User user
+            final @NotNull @Valid User user
     ) {
 
         if (
-                checkUserExistenceById(user.getId()) ||
+                userRepository.existsById(user.getId()) ||
                         user.getUsername() == null ||
                         user.getUsername().isEmpty() ||
                         user.getPassword_hash() == null ||
@@ -53,9 +53,9 @@ public class UserService {
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
-    public ResponseEntity<User> getUser(final int id) {
+    public ResponseEntity<User> getUser(final UUID sessionID) {
 
-        Optional<User> user = userRepository.findById(id);
+        Optional<User> user = userRepository.findBySessionID(sessionID);
 
         return user.map(
                 value -> new ResponseEntity<>(value, HttpStatus.OK)
@@ -63,18 +63,14 @@ public class UserService {
 
     }
 
-    public ResponseEntity<Void> deleteUser(final int id) {
+    public ResponseEntity<Void> deleteUser(final UUID sessionId) {
 
-        if (!checkUserExistenceById(id)) {
+        if (userRepository.findBySessionID(sessionId).isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
-        userRepository.deleteById(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
-
-    private boolean checkUserExistenceById(final int id) {
-        return userRepository.existsById(id);
+        userRepository.deleteBySessionID(sessionId);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     public ResponseEntity<User> changePassword(

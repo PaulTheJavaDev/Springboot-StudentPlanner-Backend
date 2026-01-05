@@ -4,7 +4,6 @@ import de.pls.stundenplaner.auth.dto.request.ChangePasswordRequest;
 import de.pls.stundenplaner.user.model.User;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -40,18 +39,18 @@ public class UserController {
         return userService.changePassword(sessionID, changePasswordRequest);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<User> getUsers(
-            @PathVariable int id
+    @GetMapping("/me")
+    public ResponseEntity<User> getUser(
+            @RequestHeader UUID sessionID
     ) {
-        return userService.getUser(id);
+        return userService.getUser(sessionID);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping
     public ResponseEntity<Void> deleteUser(
-            @PathVariable final int id
+            @RequestHeader UUID sessionID
     ) {
-        return userService.deleteUser(id);
+        return userService.deleteUser(sessionID);
     }
 
 }
