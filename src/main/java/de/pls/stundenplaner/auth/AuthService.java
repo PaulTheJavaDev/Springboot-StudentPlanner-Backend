@@ -2,15 +2,16 @@ package de.pls.stundenplaner.auth;
 
 import de.pls.stundenplaner.auth.dto.request.LoginRequest;
 import de.pls.stundenplaner.auth.dto.request.RegisterRequest;
+import de.pls.stundenplaner.scheduler.SchedulerRepository;
+import de.pls.stundenplaner.scheduler.model.ScheduleDay;
 import de.pls.stundenplaner.user.model.User;
 import de.pls.stundenplaner.user.UserRepository;
 import de.pls.stundenplaner.util.PasswordHasher;
-import de.pls.stundenplaner.auth.exceptions.InvalidLoginException;
-import de.pls.stundenplaner.auth.exceptions.UserAlreadyExistsException;
-import io.micrometer.common.lang.NonNull;
+import de.pls.stundenplaner.util.exceptions.auth.InvalidLoginException;
+import de.pls.stundenplaner.util.exceptions.auth.UserAlreadyExistsException;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
+import de.pls.stundenplaner.scheduler.model.DayOfWeek;
 import java.util.UUID;
 
 /**
@@ -20,9 +21,11 @@ import java.util.UUID;
 public class AuthService {
 
     private final UserRepository userRepository;
+    private final SchedulerRepository schedulerRepository;
 
-    public AuthService(UserRepository userRepository) {
+    public AuthService(UserRepository userRepository, SchedulerRepository schedulerRepository) {
         this.userRepository = userRepository;
+        this.schedulerRepository = schedulerRepository;
     }
 
     /**
@@ -69,6 +72,17 @@ public class AuthService {
         final User userForRegister = new User(username, hashed_Password);
 
         userRepository.save(userForRegister);
+
+        initializeScheduleDays(userForRegister.getUserUUID());
+    }
+
+    void initializeScheduleDays(final UUID userUUID) {
+
+        // Iteriere über alle Wochentage im Enum
+        for (DayOfWeek day : DayOfWeek.values()) {
+            ScheduleDay scheduleDay = new ScheduleDay(day, userUUID);
+            schedulerRepository.save(scheduleDay);
+        }
     }
 
 }

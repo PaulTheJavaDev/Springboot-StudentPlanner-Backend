@@ -1,7 +1,10 @@
 package de.pls.stundenplaner.user;
 
 import de.pls.stundenplaner.auth.dto.request.ChangePasswordRequest;
-import de.pls.stundenplaner.auth.exceptions.InvalidSessionException;
+import de.pls.stundenplaner.scheduler.SchedulerRepository;
+import de.pls.stundenplaner.scheduler.model.ScheduleDay;
+import de.pls.stundenplaner.scheduler.model.TimeStamp;
+import de.pls.stundenplaner.util.exceptions.auth.InvalidSessionException;
 import de.pls.stundenplaner.user.model.User;
 import de.pls.stundenplaner.util.PasswordHasher;
 import jakarta.validation.Valid;
@@ -10,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -94,6 +98,5 @@ public class UserService {
         userRepository.save(user);
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
-
 
 }

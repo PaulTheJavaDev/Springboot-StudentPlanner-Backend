@@ -3,7 +3,7 @@ package de.pls.stundenplaner.auth;
 import de.pls.stundenplaner.auth.dto.request.LoginRequest;
 import de.pls.stundenplaner.auth.dto.request.RegisterRequest;
 import de.pls.stundenplaner.auth.dto.response.LoginResponse;
-import de.pls.stundenplaner.auth.exceptions.UserAlreadyExistsException;
+import de.pls.stundenplaner.util.exceptions.auth.UserAlreadyExistsException;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

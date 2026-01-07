@@ -1,4 +1,4 @@
-package de.pls.stundenplaner.auth.exceptions;
+package de.pls.stundenplaner.util.exceptions.auth;
 
 public class InvalidLoginException extends RuntimeException {
 

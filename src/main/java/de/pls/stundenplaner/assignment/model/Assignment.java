@@ -1,6 +1,6 @@
 package de.pls.stundenplaner.assignment.model;
 
-import de.pls.stundenplaner.lesson.model.Subject;
+import de.pls.stundenplaner.scheduler.model.Subject;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
