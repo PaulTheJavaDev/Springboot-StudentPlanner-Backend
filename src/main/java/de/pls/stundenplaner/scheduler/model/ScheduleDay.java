@@ -1,5 +1,6 @@
 package de.pls.stundenplaner.scheduler.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 import de.pls.stundenplaner.scheduler.model.DayOfWeek;
@@ -19,6 +20,7 @@ public class ScheduleDay {
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "schedule_day_id")
+    @JsonManagedReference
     private List<TimeStamp> timeStamps = new ArrayList<>();
 
     private UUID userUUID;

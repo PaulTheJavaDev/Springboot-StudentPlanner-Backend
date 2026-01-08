@@ -1,11 +1,7 @@
 package de.pls.stundenplaner.scheduler.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-
-import java.time.LocalTime;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import jakarta.persistence.*;
 
 @Entity
 public class TimeStamp {
@@ -14,34 +10,47 @@ public class TimeStamp {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    private LocalTime startTime;
-    private LocalTime endTime;
+    private String type; // "lesson" oder "break"
+    private String text; // "Math" oder "Break"
 
-    public TimeStamp(LocalTime startTime, LocalTime endTime) {
-        this.startTime = startTime;
-        this.endTime = endTime;
-    }
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "schedule_day_id")
+    @JsonBackReference
+    private ScheduleDay scheduleDay;
 
     public TimeStamp() {
+    }
+
+    public TimeStamp(String type, String text) {
+        this.type = type;
+        this.text = text;
     }
 
     public int getId() {
         return id;
     }
 
-    public LocalTime getStartTime() {
-        return startTime;
+    public String getType() {
+        return type;
     }
 
-    public void setStartTime(LocalTime startTime) {
-        this.startTime = startTime;
+    public void setType(String type) {
+        this.type = type;
     }
 
-    public LocalTime getEndTime() {
-        return endTime;
+    public String getText() {
+        return text;
     }
 
-    public void setEndTime(LocalTime endTime) {
-        this.endTime = endTime;
+    public void setText(String text) {
+        this.text = text;
+    }
+
+    public ScheduleDay getScheduleDay() {
+        return scheduleDay;
+    }
+
+    public void setScheduleDay(ScheduleDay scheduleDay) {
+        this.scheduleDay = scheduleDay;
     }
 }

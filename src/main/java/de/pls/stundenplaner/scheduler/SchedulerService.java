@@ -1,6 +1,7 @@
 package de.pls.stundenplaner.scheduler;
 
 import de.pls.stundenplaner.scheduler.model.ScheduleDay;
+import de.pls.stundenplaner.scheduler.model.TimeStamp;
 import de.pls.stundenplaner.user.UserRepository;
 import de.pls.stundenplaner.user.model.User;
 import de.pls.stundenplaner.util.exceptions.auth.InvalidSessionException;
@@ -12,6 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import de.pls.stundenplaner.scheduler.model.DayOfWeek;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -58,14 +61,34 @@ public class SchedulerService {
             @NotNull final DayOfWeek dayOfWeek,
             @Valid final ScheduleDay updatedSchedule
     ) {
+        // User aus Session abrufen
         User user = userRepository.findBySessionID(sessionID)
                 .orElseThrow(InvalidSessionException::new);
 
+        // ScheduleDay abrufen oder neu erstellen
         ScheduleDay scheduleDay = schedulerRepository
                 .findByUserUUIDAndDayOfWeek(user.getUserUUID(), dayOfWeek)
-                .orElseThrow(InvalidSchedulerException::new);
+                .orElseGet(() -> {
+                    ScheduleDay newDay = new ScheduleDay(dayOfWeek, user.getUserUUID());
+                    schedulerRepository.save(newDay);
+                    return newDay;
+                });
 
-        scheduleDay.setTimeStamps(updatedSchedule.getTimeStamps());
+        // Alte TimeStamps sicher entfernen
+        scheduleDay.getTimeStamps().forEach(ts -> ts.setScheduleDay(null));
+        scheduleDay.getTimeStamps().clear();
+
+        // Neue TimeStamps hinzufügen
+        List<TimeStamp> newTimestamps = new ArrayList<>();
+        if (updatedSchedule.getTimeStamps() != null) {
+            for (TimeStamp ts : updatedSchedule.getTimeStamps()) {
+                ts.setScheduleDay(scheduleDay);
+                newTimestamps.add(ts);
+            }
+        }
+        scheduleDay.getTimeStamps().addAll(newTimestamps);
+
+        // ScheduleDay speichern
         schedulerRepository.save(scheduleDay);
 
         return new ResponseEntity<>(scheduleDay, HttpStatus.OK);
