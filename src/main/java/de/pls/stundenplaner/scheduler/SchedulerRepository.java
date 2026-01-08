@@ -13,6 +13,5 @@ import java.util.UUID;
 public interface SchedulerRepository extends JpaRepository<ScheduleDay, Integer> {
 
     List<ScheduleDay> findByUserUUID(UUID userUUID);
-
     Optional<ScheduleDay> findByUserUUIDAndDayOfWeek(UUID userUUID, DayOfWeek dayOfWeek);
 }

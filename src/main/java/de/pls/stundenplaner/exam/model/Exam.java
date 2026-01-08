@@ -1,6 +1,6 @@
 package de.pls.stundenplaner.exam.model;
 
-import de.pls.stundenplaner.scheduler.model.Subject;
+import de.pls.stundenplaner.subject.model.Subject;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 

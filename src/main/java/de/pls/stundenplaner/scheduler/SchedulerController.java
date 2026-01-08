@@ -19,7 +19,6 @@ public class SchedulerController {
         this.schedulerService = schedulerService;
     }
 
-    // GET alle Tage
     @GetMapping
     public ResponseEntity<List<ScheduleDay>> getAllSchedules(
             @RequestHeader("SessionID") UUID sessionID
@@ -27,7 +26,6 @@ public class SchedulerController {
         return schedulerService.getAllScheduleDays(sessionID);
     }
 
-    // GET einzelner Tag
     @GetMapping("/{dayOfWeek}")
     public ResponseEntity<ScheduleDay> getSchedule(
             @RequestHeader("SessionID") UUID sessionID,
@@ -36,7 +34,6 @@ public class SchedulerController {
         return schedulerService.getScheduleDay(sessionID, dayOfWeek);
     }
 
-    // PUT einzelner Tag
     @PutMapping("/{dayOfWeek}")
     public ResponseEntity<ScheduleDay> updateSchedule(
             @RequestHeader("SessionID") UUID sessionID,

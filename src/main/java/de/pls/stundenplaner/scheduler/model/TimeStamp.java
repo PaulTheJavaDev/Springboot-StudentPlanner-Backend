@@ -3,6 +3,7 @@ package de.pls.stundenplaner.scheduler.model;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
+@SuppressWarnings("all")
 @Entity
 public class TimeStamp {
 
@@ -10,20 +11,20 @@ public class TimeStamp {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    private String type; // "lesson" oder "break"
-    private String text; // "Math" oder "Break"
+    private String type;
+    private String text;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "schedule_day_id")
     @JsonBackReference
     private ScheduleDay scheduleDay;
 
-    public TimeStamp() {
-    }
-
     public TimeStamp(String type, String text) {
         this.type = type;
         this.text = text;
+    }
+
+    public TimeStamp() {
     }
 
     public int getId() {
@@ -53,4 +54,5 @@ public class TimeStamp {
     public void setScheduleDay(ScheduleDay scheduleDay) {
         this.scheduleDay = scheduleDay;
     }
+
 }

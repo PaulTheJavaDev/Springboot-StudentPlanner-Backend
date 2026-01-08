@@ -3,11 +3,11 @@ package de.pls.stundenplaner.scheduler.model;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
-import de.pls.stundenplaner.scheduler.model.DayOfWeek;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+@SuppressWarnings("all")
 @Entity
 public class ScheduleDay {
 
@@ -61,4 +61,5 @@ public class ScheduleDay {
     public void setTimeStamps(List<TimeStamp> timeStamps) {
         this.timeStamps = timeStamps;
     }
+
 }

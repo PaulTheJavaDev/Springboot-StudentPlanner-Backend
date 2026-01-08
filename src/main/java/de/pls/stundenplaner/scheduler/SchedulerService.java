@@ -5,7 +5,6 @@ import de.pls.stundenplaner.scheduler.model.TimeStamp;
 import de.pls.stundenplaner.user.UserRepository;
 import de.pls.stundenplaner.user.model.User;
 import de.pls.stundenplaner.util.exceptions.auth.InvalidSessionException;
-import de.pls.stundenplaner.util.exceptions.scheduler.InvalidSchedulerException;
 import jakarta.validation.Valid;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;
@@ -16,6 +15,7 @@ import de.pls.stundenplaner.scheduler.model.DayOfWeek;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -48,24 +48,25 @@ public class SchedulerService {
         User user = userRepository.findBySessionID(sessionID)
                 .orElseThrow(InvalidSessionException::new);
 
-        ScheduleDay scheduleDay = schedulerRepository
-                .findByUserUUIDAndDayOfWeek(user.getUserUUID(), day)
-                .orElseThrow(InvalidSchedulerException::new);
+        Optional<ScheduleDay> scheduleDay = schedulerRepository
+                .findByUserUUIDAndDayOfWeek(user.getUserUUID(), day);
 
-        return new ResponseEntity<>(scheduleDay, HttpStatus.OK);
+        return scheduleDay.map(
+                value -> new ResponseEntity<>(value, HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+
     }
 
-    // UPDATE
     public ResponseEntity<ScheduleDay> updateSchedule(
             @NotNull final UUID sessionID,
             @NotNull final DayOfWeek dayOfWeek,
             @Valid final ScheduleDay updatedSchedule
     ) {
-        // User aus Session abrufen
+
         User user = userRepository.findBySessionID(sessionID)
                 .orElseThrow(InvalidSessionException::new);
 
-        // ScheduleDay abrufen oder neu erstellen
+        // If Schedule doesn't exist -> create a new one
         ScheduleDay scheduleDay = schedulerRepository
                 .findByUserUUIDAndDayOfWeek(user.getUserUUID(), dayOfWeek)
                 .orElseGet(() -> {
@@ -74,11 +75,10 @@ public class SchedulerService {
                     return newDay;
                 });
 
-        // Alte TimeStamps sicher entfernen
+        // Reload the TimeStamps
         scheduleDay.getTimeStamps().forEach(ts -> ts.setScheduleDay(null));
         scheduleDay.getTimeStamps().clear();
 
-        // Neue TimeStamps hinzufügen
         List<TimeStamp> newTimestamps = new ArrayList<>();
         if (updatedSchedule.getTimeStamps() != null) {
             for (TimeStamp ts : updatedSchedule.getTimeStamps()) {
@@ -88,9 +88,9 @@ public class SchedulerService {
         }
         scheduleDay.getTimeStamps().addAll(newTimestamps);
 
-        // ScheduleDay speichern
         schedulerRepository.save(scheduleDay);
 
         return new ResponseEntity<>(scheduleDay, HttpStatus.OK);
     }
+
 }
