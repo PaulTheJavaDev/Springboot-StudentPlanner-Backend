@@ -3,8 +3,6 @@ package de.pls.stundenplaner.assignment;
 import de.pls.stundenplaner.assignment.model.Assignment;
 import de.pls.stundenplaner.assignment.model.sorting.SortCondition;
 import de.pls.stundenplaner.assignment.model.sorting.SortDirection;
-import de.pls.stundenplaner.util.exceptions.auth.InvalidSessionException;
-import de.pls.stundenplaner.user.UserRepository;
 import de.pls.stundenplaner.user.model.User;
 import jakarta.validation.Valid;
 import org.jetbrains.annotations.NotNull;
@@ -12,21 +10,24 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import static de.pls.stundenplaner.util.model.UserUtil.checkUserExistenceBySessionID;
 
 @Service
 public final class AssignmentService {
 
     private final AssignmentRepository assignmentRepository;
-    private final UserRepository userRepository;
 
-    public AssignmentService(AssignmentRepository assignmentRepository, UserRepository userRepository) {
+    public AssignmentService(AssignmentRepository assignmentRepository) {
         this.assignmentRepository = assignmentRepository;
-        this.userRepository = userRepository;
     }
 
     public ResponseEntity<List<Assignment>> getAssignments(
-            @NotNull UUID sessionID
+            final @NotNull UUID sessionID
     ) {
 
         User user = validateSession(sessionID);
@@ -40,7 +41,7 @@ public final class AssignmentService {
     }
 
     public ResponseEntity<Assignment> getAssignment(
-            @NotNull UUID sessionID,
+            final @NotNull UUID sessionID,
             final int assignmentId
     ) {
         validateSession(sessionID);
@@ -59,8 +60,7 @@ public final class AssignmentService {
             @NotNull @Valid Assignment assignment
     ) {
 
-        User user = userRepository.findBySessionID(sessionID)
-                .orElseThrow(InvalidSessionException::new);
+        User user = checkUserExistenceBySessionID(sessionID);
 
         assignment.setUserUUID(user.getUserUUID());
 
@@ -106,9 +106,10 @@ public final class AssignmentService {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    private User validateSession(UUID sessionID) {
-        return userRepository.findBySessionID(sessionID)
-                .orElseThrow(InvalidSessionException::new);
+    private User validateSession(
+            final @NotNull UUID sessionID
+    ) {
+        return checkUserExistenceBySessionID(sessionID);
     }
 
     private List<Assignment> sortAssignments(

@@ -19,9 +19,9 @@ public class TimeStamp {
     @JsonBackReference
     private ScheduleDay scheduleDay;
 
-    public TimeStamp(String type, String text) {
+    public TimeStamp(String type) {
         this.type = type;
-        this.text = text;
+        this.text = (type.equals("Lesson")) ? "Lesson" : "Break";
     }
 
     public TimeStamp() {

@@ -1,10 +1,7 @@
 package de.pls.stundenplaner.subject.model;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 @SuppressWarnings("unused")
 public enum Subject {

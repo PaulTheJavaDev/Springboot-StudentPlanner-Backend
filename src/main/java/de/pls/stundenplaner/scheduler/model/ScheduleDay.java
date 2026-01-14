@@ -1,6 +1,5 @@
 package de.pls.stundenplaner.scheduler.model;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
@@ -9,6 +8,9 @@ import java.util.UUID;
 
 @SuppressWarnings("all")
 @Entity
+@Table(
+        uniqueConstraints = @UniqueConstraint(columnNames = {"userUUID", "dayOfWeek"})
+)
 public class ScheduleDay {
 
     @Id
@@ -18,48 +20,32 @@ public class ScheduleDay {
     @Enumerated(EnumType.STRING)
     private DayOfWeek dayOfWeek;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "schedule_day_id")
-    @JsonManagedReference
+    private UUID userUUID;
+
+    @OneToMany(
+            mappedBy = "scheduleDay",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
     private List<TimeStamp> timeStamps = new ArrayList<>();
 
-    private UUID userUUID;
+    protected ScheduleDay() {
+    }
 
     public ScheduleDay(DayOfWeek dayOfWeek, UUID userUUID) {
         this.dayOfWeek = dayOfWeek;
         this.userUUID = userUUID;
-        this.timeStamps = new ArrayList<TimeStamp>();
-    }
-
-    public ScheduleDay() {
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public DayOfWeek getDayOfWeek() {
-        return dayOfWeek;
-    }
-
-    public void setDayOfWeek(DayOfWeek dayOfWeek) {
-        this.dayOfWeek = dayOfWeek;
     }
 
     public UUID getUserUUID() {
         return userUUID;
     }
 
+    public DayOfWeek getDayOfWeek() {
+        return dayOfWeek;
+    }
+
     public List<TimeStamp> getTimeStamps() {
         return timeStamps;
     }
-
-    public void setUserUUID(UUID userUUID) {
-        this.userUUID = userUUID;
-    }
-
-    public void setTimeStamps(List<TimeStamp> timeStamps) {
-        this.timeStamps = timeStamps;
-    }
-
 }

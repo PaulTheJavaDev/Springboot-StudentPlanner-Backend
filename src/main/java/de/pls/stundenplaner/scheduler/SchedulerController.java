@@ -1,14 +1,19 @@
 package de.pls.stundenplaner.scheduler;
 
+import de.pls.stundenplaner.scheduler.model.DayOfWeek;
 import de.pls.stundenplaner.scheduler.model.ScheduleDay;
-import jakarta.validation.Valid;
+import de.pls.stundenplaner.scheduler.model.TimeStamp;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import de.pls.stundenplaner.scheduler.model.DayOfWeek;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
+/**
+ * Controls the flow from the Lessons and Breaks to the Frontend
+ */
 @RestController
 @RequestMapping("/schedule/me")
 public class SchedulerController {
@@ -20,26 +25,44 @@ public class SchedulerController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ScheduleDay>> getAllSchedules(
-            @RequestHeader("SessionID") UUID sessionID
+    public ResponseEntity<List<ScheduleDay>> getSchedule(
+            final @NotNull @RequestHeader UUID sessionID
     ) {
         return schedulerService.getAllScheduleDays(sessionID);
     }
 
-    @GetMapping("/{dayOfWeek}")
-    public ResponseEntity<ScheduleDay> getSchedule(
-            @RequestHeader("SessionID") UUID sessionID,
-            @PathVariable DayOfWeek dayOfWeek
-    ) {
-        return schedulerService.getScheduleDay(sessionID, dayOfWeek);
-    }
-
-    @PutMapping("/{dayOfWeek}")
-    public ResponseEntity<ScheduleDay> updateSchedule(
+    @PostMapping("/{dayOfWeek}")
+    public ResponseEntity<TimeStamp> createTimeStamp(
             @RequestHeader("SessionID") UUID sessionID,
             @PathVariable DayOfWeek dayOfWeek,
-            @RequestBody @Valid ScheduleDay scheduleDay
+            @RequestBody Map<String, String> body
     ) {
-        return schedulerService.updateSchedule(sessionID, dayOfWeek, scheduleDay);
+        String type = body.get("type");
+        return schedulerService.createTimeStamp(sessionID, dayOfWeek, type);
     }
+
+    @PutMapping("/{dayOfWeek}/{timeStampId}")
+    public ResponseEntity<TimeStamp> updateTimeStamp(
+            final @NotNull @RequestHeader UUID sessionID,
+            final @NotNull @PathVariable DayOfWeek dayOfWeek,
+            final @PathVariable int timeStampId,
+            final @NotNull Map<String, String> body
+    ) {
+        return schedulerService.updateTimeStamp(
+                sessionID,
+                dayOfWeek,
+                timeStampId,
+                body
+        );
+    }
+
+    @DeleteMapping("/{dayOfWeek}/{timeStampId}")
+    public ResponseEntity<Void> deleteTimeStamp(
+            final @PathVariable int timeStampId,
+            final @NotNull @PathVariable DayOfWeek dayOfWeek,
+            final @NotNull @RequestHeader UUID sessionID
+    ) {
+        return schedulerService.deleteTimeStamp(sessionID, dayOfWeek, timeStampId);
+    }
+
 }

@@ -1,10 +1,6 @@
 package de.pls.stundenplaner.user;
 
 import de.pls.stundenplaner.auth.dto.request.ChangePasswordRequest;
-import de.pls.stundenplaner.scheduler.SchedulerRepository;
-import de.pls.stundenplaner.scheduler.model.ScheduleDay;
-import de.pls.stundenplaner.scheduler.model.TimeStamp;
-import de.pls.stundenplaner.util.exceptions.auth.InvalidSessionException;
 import de.pls.stundenplaner.user.model.User;
 import de.pls.stundenplaner.util.PasswordHasher;
 import jakarta.validation.Valid;
@@ -13,10 +9,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import static de.pls.stundenplaner.util.model.UserUtil.*;
 
 @Service
 public class UserService {
@@ -57,7 +54,9 @@ public class UserService {
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
-    public ResponseEntity<User> getUser(final UUID sessionID) {
+    public ResponseEntity<User> getUser(
+            final @NotNull UUID sessionID
+    ) {
 
         Optional<User> user = userRepository.findBySessionID(sessionID);
 
@@ -67,7 +66,9 @@ public class UserService {
 
     }
 
-    public ResponseEntity<Void> deleteUser(final UUID sessionId) {
+    public ResponseEntity<Void> deleteUser(
+            final @NotNull UUID sessionId
+    ) {
 
         if (userRepository.findBySessionID(sessionId).isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -78,11 +79,10 @@ public class UserService {
     }
 
     public ResponseEntity<User> changePassword(
-            UUID sessionID,
-            ChangePasswordRequest request
+            final @NotNull UUID sessionID,
+            final @NotNull ChangePasswordRequest request
     ) {
-        User user = userRepository.findBySessionID(sessionID)
-                .orElseThrow(InvalidSessionException::new);
+        User user = checkUserExistenceBySessionID(sessionID);
 
         String oldPasswordHash =
                 PasswordHasher.sha256(request.getPassword());

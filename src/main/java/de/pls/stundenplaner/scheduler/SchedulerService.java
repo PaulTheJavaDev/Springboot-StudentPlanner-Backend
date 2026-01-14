@@ -1,96 +1,129 @@
 package de.pls.stundenplaner.scheduler;
 
+import de.pls.stundenplaner.scheduler.model.DayOfWeek;
 import de.pls.stundenplaner.scheduler.model.ScheduleDay;
 import de.pls.stundenplaner.scheduler.model.TimeStamp;
-import de.pls.stundenplaner.user.UserRepository;
 import de.pls.stundenplaner.user.model.User;
-import de.pls.stundenplaner.util.exceptions.auth.InvalidSessionException;
-import jakarta.validation.Valid;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import de.pls.stundenplaner.scheduler.model.DayOfWeek;
-
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 import java.util.UUID;
+
+import static de.pls.stundenplaner.util.model.UserUtil.checkUserExistenceBySessionID;
 
 @Service
 public class SchedulerService {
 
+    private final TimeStampRepository timeStampRepository;
     private final SchedulerRepository schedulerRepository;
-    private final UserRepository userRepository;
 
-    public SchedulerService(SchedulerRepository schedulerRepository, UserRepository userRepository) {
+    public SchedulerService(TimeStampRepository timeStampRepository, SchedulerRepository schedulerRepository) {
+        this.timeStampRepository = timeStampRepository;
         this.schedulerRepository = schedulerRepository;
-        this.userRepository = userRepository;
     }
 
-    // GET ALL
-    public ResponseEntity<List<ScheduleDay>> getAllScheduleDays(@NotNull final UUID sessionID) {
-        User user = userRepository.findBySessionID(sessionID)
-                .orElseThrow(InvalidSessionException::new);
-
-        List<ScheduleDay> scheduleDays = schedulerRepository.findByUserUUID(user.getUserUUID());
-
-        return new ResponseEntity<>(scheduleDays, HttpStatus.OK);
-    }
-
-    // GET
-    public ResponseEntity<ScheduleDay> getScheduleDay(
-            @NotNull final UUID sessionID,
-            @NotNull final DayOfWeek day
+    public ResponseEntity<TimeStamp> updateTimeStamp(
+            final @NotNull UUID sessionID,
+            final @NotNull DayOfWeek dayOfWeek,
+            final int timeStampId,
+            final @NotNull Map<String, String> body
     ) {
+        TimeStamp timeStamp = getTimeStamp(
+                sessionID,
+                timeStampId,
+                dayOfWeek
+        ).getBody();
 
-        User user = userRepository.findBySessionID(sessionID)
-                .orElseThrow(InvalidSessionException::new);
+        assert timeStamp != null;
 
-        Optional<ScheduleDay> scheduleDay = schedulerRepository
-                .findByUserUUIDAndDayOfWeek(user.getUserUUID(), day);
-
-        return scheduleDay.map(
-                value -> new ResponseEntity<>(value, HttpStatus.OK))
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
-
-    }
-
-    public ResponseEntity<ScheduleDay> updateSchedule(
-            @NotNull final UUID sessionID,
-            @NotNull final DayOfWeek dayOfWeek,
-            @Valid final ScheduleDay updatedSchedule
-    ) {
-
-        User user = userRepository.findBySessionID(sessionID)
-                .orElseThrow(InvalidSessionException::new);
-
-        // If Schedule doesn't exist -> create a new one
-        ScheduleDay scheduleDay = schedulerRepository
-                .findByUserUUIDAndDayOfWeek(user.getUserUUID(), dayOfWeek)
-                .orElseGet(() -> {
-                    ScheduleDay newDay = new ScheduleDay(dayOfWeek, user.getUserUUID());
-                    schedulerRepository.save(newDay);
-                    return newDay;
-                });
-
-        // Reload the TimeStamps
-        scheduleDay.getTimeStamps().forEach(ts -> ts.setScheduleDay(null));
-        scheduleDay.getTimeStamps().clear();
-
-        List<TimeStamp> newTimestamps = new ArrayList<>();
-        if (updatedSchedule.getTimeStamps() != null) {
-            for (TimeStamp ts : updatedSchedule.getTimeStamps()) {
-                ts.setScheduleDay(scheduleDay);
-                newTimestamps.add(ts);
-            }
+        if (body.containsKey("type")) {
+            timeStamp.setType(body.get("type"));
         }
-        scheduleDay.getTimeStamps().addAll(newTimestamps);
 
-        schedulerRepository.save(scheduleDay);
+        timeStampRepository.save(timeStamp);
 
-        return new ResponseEntity<>(scheduleDay, HttpStatus.OK);
+        return new ResponseEntity<>(timeStamp, HttpStatus.OK);
     }
 
+    public ResponseEntity<TimeStamp> getTimeStamp(
+            final @NotNull UUID sessionID,
+            final int timeStampId,
+            final @NotNull DayOfWeek dayOfWeek
+    ) {
+        User user = checkUserExistenceBySessionID(sessionID);
+
+        TimeStamp timeStamp = timeStampRepository.findById(timeStampId).orElseThrow();
+
+        ScheduleDay day = timeStamp.getScheduleDay();
+
+        if (!day.getUserUUID().equals(user.getUserUUID())) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+
+        if (day.getDayOfWeek() != dayOfWeek) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity<>(timeStamp, HttpStatus.OK);
+    }
+
+    // Create new timestamp
+    public ResponseEntity<TimeStamp> createTimeStamp(
+            final @NotNull UUID sessionID,
+            final @NotNull DayOfWeek dayOfWeek,
+            final @NotNull String type
+    ) {
+        User user = checkUserExistenceBySessionID(sessionID);
+
+        // Find or create ScheduleDay lazily
+        ScheduleDay day = schedulerRepository
+                .findByUserUUIDAndDayOfWeek(user.getUserUUID(), dayOfWeek)
+                .orElseGet(() -> schedulerRepository.save(new ScheduleDay(dayOfWeek, user.getUserUUID())));
+
+        TimeStamp timeStamp = new TimeStamp(
+                type
+        );
+
+        timeStamp.setScheduleDay(day);
+        timeStamp = timeStampRepository.save(timeStamp);
+
+        return new ResponseEntity<>(timeStamp, HttpStatus.CREATED);
+    }
+
+    public ResponseEntity<Void> deleteTimeStamp(
+            final @NotNull UUID sessionID,
+            final @NotNull DayOfWeek dayOfWeek,
+            final int timeStampId
+    ) {
+        User user = checkUserExistenceBySessionID(sessionID);
+
+        TimeStamp timeStamp = timeStampRepository.findById(timeStampId).orElseThrow();
+
+        ScheduleDay day = timeStamp.getScheduleDay();
+
+        if (!day.getUserUUID().equals(user.getUserUUID())) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+
+        if (day.getDayOfWeek() != dayOfWeek) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        timeStampRepository.delete(timeStamp);
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    public ResponseEntity<List<ScheduleDay>> getAllScheduleDays(
+            final @NotNull UUID sessionID
+    ) {
+        User user = checkUserExistenceBySessionID(sessionID);
+
+        List<ScheduleDay> days = schedulerRepository.findByUserUUID(user.getUserUUID());
+        return new ResponseEntity<>(days, HttpStatus.OK);
+    }
 }
