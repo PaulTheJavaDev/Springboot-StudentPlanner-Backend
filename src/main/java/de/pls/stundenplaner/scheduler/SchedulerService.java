@@ -4,10 +4,12 @@ import de.pls.stundenplaner.scheduler.model.DayOfWeek;
 import de.pls.stundenplaner.scheduler.model.ScheduleDay;
 import de.pls.stundenplaner.scheduler.model.TimeStamp;
 import de.pls.stundenplaner.user.model.User;
+import de.pls.stundenplaner.util.exceptions.auth.InvalidSessionException;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 import java.util.Map;
@@ -38,10 +40,16 @@ public class SchedulerService {
                 dayOfWeek
         ).getBody();
 
-        assert timeStamp != null;
+        if (timeStamp == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
 
         if (body.containsKey("type")) {
             timeStamp.setType(body.get("type"));
+        }
+
+        if (body.containsKey("text")) {
+            timeStamp.setText(body.get("text"));
         }
 
         timeStampRepository.save(timeStamp);
@@ -119,9 +127,17 @@ public class SchedulerService {
     }
 
     public ResponseEntity<List<ScheduleDay>> getAllScheduleDays(
-            final @NotNull UUID sessionID
+            final @NotNull String sessionID
     ) {
-        User user = checkUserExistenceBySessionID(sessionID);
+        UUID sessionUUID;
+
+        try {
+            sessionUUID = UUID.fromString(sessionID);
+        } catch (Exception exception) {
+            throw new InvalidSessionException("Invalidly parsed sessionID:" + sessionID);
+        }
+
+        User user = checkUserExistenceBySessionID(sessionUUID);
 
         List<ScheduleDay> days = schedulerRepository.findByUserUUID(user.getUserUUID());
         return new ResponseEntity<>(days, HttpStatus.OK);

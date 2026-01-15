@@ -6,4 +6,8 @@ public class InvalidSessionException extends RuntimeException {
         super("Invalid SessionID. Proceed to Login to get a SessionID.");
     }
 
+    public InvalidSessionException(String message) {
+        super(message);
+    }
+
 }

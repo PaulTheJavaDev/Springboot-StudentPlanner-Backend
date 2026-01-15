@@ -21,7 +21,7 @@ public class TimeStamp {
 
     public TimeStamp(String type) {
         this.type = type;
-        this.text = (type.equals("Lesson")) ? "Lesson" : "Break";
+        this.text = (type.equalsIgnoreCase("Lesson")) ? "Lesson" : "Break";
     }
 
     public TimeStamp() {

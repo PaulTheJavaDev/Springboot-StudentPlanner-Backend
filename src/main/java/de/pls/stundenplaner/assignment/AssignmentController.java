@@ -42,7 +42,7 @@ public class AssignmentController {
     }
 
     @PostMapping
-    public ResponseEntity<Assignment> create(
+    public ResponseEntity<Assignment> createAssignment(
             @RequestHeader(name = "SessionID") UUID sessionID,
             @Valid @RequestBody Assignment assignmentBody
     ) {

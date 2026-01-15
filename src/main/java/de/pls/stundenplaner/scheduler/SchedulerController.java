@@ -3,6 +3,7 @@ package de.pls.stundenplaner.scheduler;
 import de.pls.stundenplaner.scheduler.model.DayOfWeek;
 import de.pls.stundenplaner.scheduler.model.ScheduleDay;
 import de.pls.stundenplaner.scheduler.model.TimeStamp;
+import jakarta.validation.Valid;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +27,7 @@ public class SchedulerController {
 
     @GetMapping
     public ResponseEntity<List<ScheduleDay>> getSchedule(
-            final @NotNull @RequestHeader UUID sessionID
+            final @NotNull @RequestHeader String sessionID
     ) {
         return schedulerService.getAllScheduleDays(sessionID);
     }
@@ -43,10 +44,10 @@ public class SchedulerController {
 
     @PutMapping("/{dayOfWeek}/{timeStampId}")
     public ResponseEntity<TimeStamp> updateTimeStamp(
-            final @NotNull @RequestHeader UUID sessionID,
+            final @NotNull @RequestHeader("SessionID") UUID sessionID,
             final @NotNull @PathVariable DayOfWeek dayOfWeek,
             final @PathVariable int timeStampId,
-            final @NotNull Map<String, String> body
+            final @NotNull @Valid @RequestBody Map<String, String> body
     ) {
         return schedulerService.updateTimeStamp(
                 sessionID,

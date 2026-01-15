@@ -10,6 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -54,13 +56,18 @@ public final class AssignmentService {
 
     }
 
-    // NOTE: Don't forget or get confused by the different UUIDs. The sessionID is parsed to get the userUUID (a different one than the sessionID)
     public ResponseEntity<Assignment> createAssignment(
             @NotNull UUID sessionID,
             @NotNull @Valid Assignment assignment
     ) {
 
         User user = checkUserExistenceBySessionID(sessionID);
+
+        LocalDate today = LocalDate.now();
+
+        if (assignment.getDueDate().isBefore(today)) {
+            return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
+        }
 
         assignment.setUserUUID(user.getUserUUID());
 
