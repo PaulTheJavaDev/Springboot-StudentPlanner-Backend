@@ -1,8 +1,8 @@
 package de.pls.stundenplaner.util.model;
 
-import de.pls.stundenplaner.user.UserRepository;
-import de.pls.stundenplaner.user.model.User;
-import de.pls.stundenplaner.util.exceptions.auth.InvalidSessionException;
+import de.pls.stundenplaner.repository.UserRepository;
+import de.pls.stundenplaner.model.User;
+import de.pls.stundenplaner.util.exceptions.InvalidSessionException;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 

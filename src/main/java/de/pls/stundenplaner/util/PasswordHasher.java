@@ -1,12 +1,14 @@
 package de.pls.stundenplaner.util;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public final class PasswordHasher {
 
-    public static String sha256(String password) {
+    public static String sha256(@NotNull final String password) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] hash = digest.digest(password.getBytes(StandardCharsets.UTF_8));
