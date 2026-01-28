@@ -1,9 +1,11 @@
 package de.pls.stundenplaner.controller;
 
+import de.pls.stundenplaner.service.AssignmentService;
 import de.pls.stundenplaner.service.AuthService;
 import de.pls.stundenplaner.dto.request.auth.LoginRequest;
 import de.pls.stundenplaner.dto.request.auth.RegisterRequest;
 import de.pls.stundenplaner.dto.response.auth.LoginResponse;
+import de.pls.stundenplaner.util.exceptions.InvalidLoginException;
 import de.pls.stundenplaner.util.exceptions.UserAlreadyExistsException;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -16,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import java.util.UUID;
 
 /**
- * REST-Point handler for the Authentication process
+ * Handles Web Requests for the Authentication via {@link AuthService}
  */
 @Controller
 @RequestMapping("/auth")
@@ -28,28 +30,20 @@ public class AuthController {
         this.authService = authService;
     }
 
-    /**
-     * Handles the login process
-     * @param loginRequest DTO containing username and password
-     */
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(
             @RequestBody final LoginRequest loginRequest
-    ) {
+    ) throws InvalidLoginException {
 
         final UUID sessionID = authService.checkLogin(loginRequest).sessionID();
         return new ResponseEntity<>(new LoginResponse(sessionID), HttpStatus.OK);
 
     }
 
-    /**
-     * Registers a User. AuthService throws a {@link UserAlreadyExistsException} if the username is already taken.
-     * @param registerRequest DTO containing username and password
-     */
     @PostMapping("/register")
     public ResponseEntity<String> register(
             @RequestBody @Valid RegisterRequest registerRequest
-    ) {
+    ) throws UserAlreadyExistsException {
 
         authService.registerUser(registerRequest);
         return ResponseEntity.ok().build();

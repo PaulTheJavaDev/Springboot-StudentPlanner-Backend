@@ -5,6 +5,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.util.UUID;
 
+/**
+ * Launches the App.
+ */
 @SpringBootApplication
 public class AppLauncher {
 

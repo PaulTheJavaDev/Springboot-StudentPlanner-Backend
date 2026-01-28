@@ -26,12 +26,15 @@ public class AuthService {
     }
 
     /**
-     * Login a user with given credentials.
-     * Throws {@link InvalidLoginException} if username doesn't exist or password is wrong.
+     * Validates if the User with its given credentials is able to log in.
+     *
+     * @param loginRequest A DTO for the Login {@code request} part which holds the Username and Password.
+     * @return A DTO for the Login {@code response} part which returns the SessionID for the Frontend to handle.
+     * @throws InvalidLoginException Thrown if the credentials from the request DTO are invalid.
      */
     public LoginResponse checkLogin(
             final @NotNull LoginRequest loginRequest
-    ) {
+    ) throws InvalidLoginException {
 
         User user = userRepository.findByUsername(loginRequest.getUsername())
                 .orElseThrow(InvalidLoginException::new);
@@ -50,12 +53,14 @@ public class AuthService {
     }
 
     /**
-     * Register a new user.
-     * Throws {@link UserAlreadyExistsException} if username is already taken.
+     * Validates if the User with its given credentials is able to register.
+     *
+     * @param registerRequest A DTO for the Login {@code request} part which holds the Username and Password.
+     * @throws UserAlreadyExistsException Thrown when the username from the credentials already exists.
      */
     public void registerUser(
             final @NotNull RegisterRequest registerRequest
-    ) {
+    ) throws UserAlreadyExistsException {
 
         final String username = registerRequest.getUsername();
 
@@ -63,8 +68,7 @@ public class AuthService {
             throw new UserAlreadyExistsException(username);
         }
 
-        final String hashedPassword =
-                PasswordHasher.sha256(registerRequest.getPassword());
+        final String hashedPassword = PasswordHasher.sha256(registerRequest.getPassword());
 
         final User user = new User(username, hashedPassword);
         userRepository.save(user);

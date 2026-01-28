@@ -3,9 +3,10 @@ package de.pls.stundenplaner.service;
 import de.pls.stundenplaner.dto.request.assignment.CreateAssignmentRequest;
 import de.pls.stundenplaner.dto.request.assignment.UpdateAssignmentRequest;
 import de.pls.stundenplaner.repository.AssignmentRepository;
-import de.pls.stundenplaner.model.AssignmentEntity;
+import de.pls.stundenplaner.model.Assignment;
 import de.pls.stundenplaner.model.User;
-import de.pls.stundenplaner.util.exceptions.UnauthorizedException;
+import de.pls.stundenplaner.util.exceptions.InvalidSessionException;
+import de.pls.stundenplaner.util.exceptions.UnauthorizedAccessException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,73 +20,106 @@ import java.util.UUID;
 
 import static de.pls.stundenplaner.util.model.UserUtil.checkUserExistenceBySessionID;
 
+/**
+ * Business logic for the {@link Assignment} Entity
+ */
 @Service
 @RequiredArgsConstructor
 public final class AssignmentService {
 
     private final AssignmentRepository assignmentRepository;
 
-
-    public List<AssignmentEntity> getAssignments(
+    /**
+     * Gets all Assignments for a User.
+     *
+     * @param sessionID Used to determine the User by searching the SessionID in the Database.
+     * @return a List of Assignments. If none found, it will return an empty List.
+     * @throws InvalidSessionException Thrown when a user request contains no session ID or an invalid session ID.
+     */
+    public List<Assignment> getAssignments(
             final @NotNull UUID sessionID
-    ) {
+    ) throws InvalidSessionException {
 
         User user = validateSession(sessionID);
-
         return assignmentRepository.findAssignmentsByUserUUID(user.getUserUUID());
 
     }
 
-    public AssignmentEntity createAssignment(
-            @NotNull UUID sessionID,
-            @Valid CreateAssignmentRequest request
-    ) {
+    /**
+     * Creates an Assignment for a specified User.
+     *
+     * @param sessionID Used to determine the User by searching the SessionID in the Database.
+     * @param createAssignmentRequest A DTO for creating Assignments. Only sends required Information.
+     * @return The created Assignment.
+     * @throws InvalidSessionException Thrown when a user request contains no session ID or an invalid session ID.
+     */
+    public Assignment createAssignment(
+            @NotNull final UUID sessionID,
+            @Valid @NotNull final CreateAssignmentRequest createAssignmentRequest
+    ) throws InvalidSessionException {
+
         User user = checkUserExistenceBySessionID(sessionID);
 
-        if (request.getDueDate().isBefore(LocalDate.now())) {
+        if (createAssignmentRequest.getDueDate().isBefore(LocalDate.now())) {
             throw new IllegalArgumentException("Date cannot be in the past!");
         }
 
-        AssignmentEntity entity = new AssignmentEntity();
-        entity.setSubject(request.getSubject());
-        entity.setDueDate(request.getDueDate());
-        entity.setCompleted(request.isCompleted());
-        entity.setNotes(request.getNotes());
+        Assignment entity = new Assignment();
+        entity.setSubject(createAssignmentRequest.getSubject());
+        entity.setDueDate(createAssignmentRequest.getDueDate());
+        entity.setCompleted(createAssignmentRequest.isCompleted());
+        entity.setNotes(createAssignmentRequest.getNotes());
         entity.setUserUUID(user.getUserUUID());
 
         return assignmentRepository.save(entity);
     }
 
-    public AssignmentEntity updateAssignment(
-            @NotNull UUID sessionID,
-            final int assignmentId,
-            UpdateAssignmentRequest request
-    ) {
+    /**
+     * Updates an existing Assignment.
+     *
+     * @param sessionID Used to determine the User by searching the SessionID in the Database.
+     * @param request A DTO for updating Assignments. Only sends required Information.
+     * @param assignmentId Used to find the associated Assignment Object in the Database.
+     * @return The Updated Assignment Object.
+     * @throws UnauthorizedAccessException Thrown if the UserUUID of the Assignment Object doesn't match the UserUUID found by the SessionID.
+     */
+    public Assignment updateAssignment(
+            @NotNull final UUID sessionID,
+            @NotNull final UpdateAssignmentRequest request,
+            final int assignmentId
+    ) throws UnauthorizedAccessException, InvalidSessionException {
 
         User user = validateSession(sessionID);
 
-        final AssignmentEntity assignmentEntity = assignmentRepository.findById(assignmentId).orElseThrow(EntityNotFoundException::new);
+        final Assignment assignment = assignmentRepository.findById(assignmentId).orElseThrow(EntityNotFoundException::new);
 
-        if (!assignmentEntity.getUserUUID().equals(user.getUserUUID())) {
-            throw new UnauthorizedException("User is not authorized to update this assignment");
+        if (!assignment.getUserUUID().equals(user.getUserUUID())) {
+            throw new UnauthorizedAccessException("User is not authorized to update this assignment");
         }
 
-        assignmentEntity.setSubject(request.getSubject());
-        assignmentEntity.setDueDate(request.getDueDate());
-        assignmentEntity.setCompleted(request.isCompleted());
+        assignment.setSubject(request.getSubject());
+        assignment.setDueDate(request.getDueDate());
+        assignment.setCompleted(request.isCompleted());
 
-        assignmentRepository.save(assignmentEntity);
+        assignmentRepository.save(assignment);
 
-        return assignmentEntity;
+        return assignment;
     }
 
+    /**
+     * Deletes an Existing Assignment.
+     *
+     * @param sessionID Used to determine the User by searching the SessionID in the Database.
+     * @param assignmentId Used to find the associated Assignment Object in the Database.
+     */
     public void deleteAssignment(
-            final UUID sessionID,
+            @NotNull final UUID sessionID,
             final int assignmentId
-    ) {
+    ) throws InvalidSessionException {
+
         validateSession(sessionID);
 
-        final Optional<AssignmentEntity> assignmentToDelete = assignmentRepository.findById(assignmentId);
+        final Optional<Assignment> assignmentToDelete = assignmentRepository.findById(assignmentId);
 
         if (assignmentToDelete.isEmpty()) {
             throw new EntityNotFoundException("Assignment with id:" + assignmentId + " was not found!");
@@ -94,9 +128,19 @@ public final class AssignmentService {
         assignmentRepository.delete(assignmentToDelete.get());
     }
 
+    /**
+     * Validates a SessionID and gives back its User associated Object.
+     *
+     * @param sessionID Used to determine the User by searching the SessionID in the Database.
+     * @return {@link User} Object
+     * @throws InvalidSessionException Thrown if the SessionID was not found,
+     * meaning the User doesn't exist or an Invalid SessionID was presented.
+     */
     private User validateSession(
             final @NotNull UUID sessionID
-    ) {
+    ) throws InvalidSessionException {
+
         return checkUserExistenceBySessionID(sessionID);
+
     }
 }

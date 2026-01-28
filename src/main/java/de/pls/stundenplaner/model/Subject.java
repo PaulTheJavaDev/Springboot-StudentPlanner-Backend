@@ -1,9 +1,9 @@
 package de.pls.stundenplaner.model;
 
-import java.util.Arrays;
-import java.util.List;
+import lombok.Getter;
 
-@SuppressWarnings("unused")
+@SuppressWarnings("all")
+@Getter
 public enum Subject {
 
     MATH("Math"),
@@ -24,11 +24,4 @@ public enum Subject {
         this.name = name;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public static List<Subject> getAllSubjects() {
-        return Arrays.stream(Subject.values()).toList();
-    }
 }

@@ -3,12 +3,17 @@ package de.pls.stundenplaner.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.micrometer.common.lang.NonNull;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
 @SuppressWarnings("all")
 @Entity
 @Table(name = "users")
+@Getter @Setter @NoArgsConstructor
 public class User {
 
     @Id
@@ -17,74 +22,26 @@ public class User {
 
     @Column(nullable = false, unique = true, updatable = false)
     @JsonProperty("useruuid")
-    private UUID userUUID;
+    @NotNull private UUID userUUID;
 
     @Column(unique = true, nullable = false)
-    private String username;
+    @NotNull private String username;
 
     @Column(nullable = false)
     @JsonProperty("password_hash")
-    private String password_hash;
+    @NotNull private String password_hash;
 
-    /**
-     * Nullable because the User should get a new session only if they are actively logged in, not when they are logged out.
-     */
     @Column(unique = true)
     @JsonProperty("sessionID")
     private UUID sessionID;
 
-    protected User() {
-    }
-
     public User(
-            @NonNull String username,
-            @NonNull String password_hash
+            String username,
+            String password_hash
     ) {
+        setUserUUID(UUID.randomUUID());
         this.username = username;
         this.password_hash = password_hash;
-    }
-
-    @PrePersist
-    private void prePersist() {
-        if (userUUID == null) {
-            userUUID = UUID.randomUUID();
-        }
-    }
-
-    public void setSessionID(UUID sessionID) {
-        this.sessionID = sessionID;
-    }
-
-    public UUID getSessionID() {
-        return sessionID;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public UUID getUserUUID() {
-        return userUUID;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public String getPassword_hash() {
-        return password_hash;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public void setPassword_hash(String passwordHash) {
-        this.password_hash = passwordHash;
-    }
-
-    public void setUserUUID(UUID userUUID) {
-        this.userUUID = userUUID;
     }
 
 }

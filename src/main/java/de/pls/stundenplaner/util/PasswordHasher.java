@@ -8,7 +8,15 @@ import java.security.NoSuchAlgorithmException;
 
 public final class PasswordHasher {
 
-    public static String sha256(@NotNull final String password) {
+    /**
+     * Irreversible Encoding method using the built-in Java "SHA-256" Algorithm.
+     *
+     * @param password Password to encode.
+     * @return The encoded Password.
+     */
+    public static String sha256(
+            @NotNull final String password
+    ) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] hash = digest.digest(password.getBytes(StandardCharsets.UTF_8));

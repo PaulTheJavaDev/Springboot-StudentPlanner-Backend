@@ -1,16 +1,22 @@
 package de.pls.stundenplaner.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Represents a ScheduleDay belonging to a specific user.
+ */
 @SuppressWarnings("all")
 @Entity
-@Table(
-        uniqueConstraints = @UniqueConstraint(columnNames = {"userUUID", "dayOfWeek"})
-)
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"userUUID", "dayOfWeek"})) // Both need to be unique (from other values from these Fields), a user cannot have two TuesDays in the Database.
+@Getter @Setter @NoArgsConstructor
 public class ScheduleDay {
 
     @Id
@@ -18,10 +24,8 @@ public class ScheduleDay {
     private int id;
 
     @Enumerated(EnumType.STRING)
-    private DayOfWeek dayOfWeek;
-
-    private UUID userUUID;
-
+    @NotNull private DayOfWeek dayOfWeek;
+    @NotNull private UUID userUUID;
     @OneToMany(
             mappedBy = "scheduleDay",
             cascade = CascadeType.ALL,
@@ -29,23 +33,12 @@ public class ScheduleDay {
     )
     private List<TimeStamp> timeStamps = new ArrayList<>();
 
-    protected ScheduleDay() {
-    }
-
-    public ScheduleDay(DayOfWeek dayOfWeek, UUID userUUID) {
+    public ScheduleDay(
+            DayOfWeek dayOfWeek,
+            UUID userUUID
+    ) {
         this.dayOfWeek = dayOfWeek;
         this.userUUID = userUUID;
     }
 
-    public UUID getUserUUID() {
-        return userUUID;
-    }
-
-    public DayOfWeek getDayOfWeek() {
-        return dayOfWeek;
-    }
-
-    public List<TimeStamp> getTimeStamps() {
-        return timeStamps;
-    }
 }
