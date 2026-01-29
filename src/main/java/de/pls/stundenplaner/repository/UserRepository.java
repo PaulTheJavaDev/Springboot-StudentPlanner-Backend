@@ -15,6 +15,5 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
     Optional<User> findByUsername(String username);
     Optional<User> findBySessionID(UUID sessionID);
-    void deleteBySessionID(UUID sessionID);
 
 }

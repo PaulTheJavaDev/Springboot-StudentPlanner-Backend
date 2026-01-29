@@ -12,7 +12,9 @@ import jakarta.validation.Valid;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,6 +25,7 @@ import java.util.UUID;
 @RequestMapping("/schedule/me")
 public class TimeStampController {
 
+    private final String SESSION_ID_HEADER = "SessionID";
     private final TimeStampService timeStampService;
 
     public TimeStampController(TimeStampService timeStampService) {
@@ -31,7 +34,7 @@ public class TimeStampController {
 
     @GetMapping
     public ResponseEntity<List<ScheduleDay>> getSchedule(
-            final @NotNull @RequestHeader("SessionID") UUID sessionID
+            final @NotNull @RequestHeader(SESSION_ID_HEADER) UUID sessionID
     ) throws InvalidSessionException {
 
         List<ScheduleDay> scheduleDays = timeStampService.getAllScheduleDays(sessionID);
@@ -41,28 +44,39 @@ public class TimeStampController {
 
     @PostMapping("/{dayOfWeek}")
     public ResponseEntity<TimeStamp> createTimeStamp(
-            @RequestHeader("SessionID") UUID sessionID,
-            @PathVariable DayOfWeek dayOfWeek,
-            @RequestBody CreateTimeStampRequest createTimeStampRequest
+            final @RequestHeader(SESSION_ID_HEADER) UUID sessionID,
+            final @PathVariable DayOfWeek dayOfWeek,
+            final @RequestBody CreateTimeStampRequest createTimeStampRequest
     ) throws InvalidSessionException {
-        TimeStamp timeStamp = timeStampService.createTimeStamp(sessionID, dayOfWeek, createTimeStampRequest);
-        return ResponseEntity.ok(timeStamp);
+
+        final TimeStamp timeStamp = timeStampService.createTimeStamp(sessionID, dayOfWeek, createTimeStampRequest);
+
+        final URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(timeStamp.getId())
+                .toUri();
+
+        return ResponseEntity.created(location).body(timeStamp);
+
     }
+
 
     @PutMapping("/{dayOfWeek}/{timeStampId}")
     public ResponseEntity<TimeStamp> updateTimeStamp(
-            @NotNull @RequestHeader("SessionID") final UUID sessionID,
-            @NotNull @PathVariable final DayOfWeek dayOfWeek,
-            @PathVariable int timeStampId,
-            @NotNull @RequestBody @Valid final UpdateTimeStampRequest updateTimeStampRequest
+            final @NotNull @RequestHeader(SESSION_ID_HEADER) UUID sessionID,
+            final @NotNull @PathVariable DayOfWeek dayOfWeek,
+            final @PathVariable int timeStampId,
+            final @NotNull @RequestBody @Valid UpdateTimeStampRequest updateTimeStampRequest
     ) throws InvalidSessionException, UnauthorizedAccessException {
 
         TimeStamp timeStamp = timeStampService.updateTimeStamp(
                 sessionID,
                 dayOfWeek,
-                timeStampId,
-                updateTimeStampRequest
-        );
+                updateTimeStampRequest,
+                timeStampId
+                );
+
         return ResponseEntity.ok(timeStamp);
 
     }

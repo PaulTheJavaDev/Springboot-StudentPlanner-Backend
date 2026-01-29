@@ -1,11 +1,8 @@
 package de.pls.stundenplaner.dto.request.scheduler;
 
-import lombok.Data;
-
-@Data
-public class UpdateTimeStampRequest {
-
-    String type;
-    String text;
+public record UpdateTimeStampRequest(
+        String type,
+        String text
+) {
 
 }

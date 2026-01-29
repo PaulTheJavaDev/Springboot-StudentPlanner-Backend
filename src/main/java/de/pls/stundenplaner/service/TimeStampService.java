@@ -8,13 +8,14 @@ import de.pls.stundenplaner.repository.TimeStampRepository;
 import de.pls.stundenplaner.util.exceptions.InvalidSessionException;
 import de.pls.stundenplaner.util.exceptions.UnauthorizedAccessException;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.NonNull;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
 
-import static de.pls.stundenplaner.util.model.UserUtil.checkUserExistenceBySessionID;
+import static de.pls.stundenplaner.util.UserUtil.checkUserExistenceBySessionID;
 
 /**
  * Business logic for the {@link TimeStamp} entity.
@@ -36,15 +37,15 @@ public class TimeStampService {
      * If the {@link ScheduleDay} does not yet exist, it will be created automatically.
      *
      * @param sessionID Used to determine the User by searching the SessionID in the Database.
-     * @param dayOfWeek The day of week the TimeStamp belongs to.
+     * @param dayOfWeek The day of the week the TimeStamp belongs to.
      * @param request DTO containing the data required to create a TimeStamp.
      * @return The created {@link TimeStamp}.
      * @throws InvalidSessionException Thrown when the session ID is invalid or not found.
      */
     public TimeStamp createTimeStamp(
-            final @NotNull UUID sessionID,
-            final @NotNull DayOfWeek dayOfWeek,
-            CreateTimeStampRequest request
+            @NotNull @NonNull final UUID sessionID,
+            @NotNull @NonNull final DayOfWeek dayOfWeek,
+            @NotNull @NonNull final CreateTimeStampRequest request
     ) throws InvalidSessionException {
 
         User user = checkUserExistenceBySessionID(sessionID);
@@ -55,9 +56,9 @@ public class TimeStampService {
                         new ScheduleDay(dayOfWeek, user.getUserUUID())
                 ));
 
-        TimeStamp timeStamp = new TimeStamp(request.getType());
+        TimeStamp timeStamp = new TimeStamp(request.type());
         timeStamp.setScheduleDay(day);
-        timeStamp.setText(request.getText());
+        timeStamp.setText(request.text());
 
         timeStampRepository.save(timeStamp);
 
@@ -77,10 +78,10 @@ public class TimeStampService {
      * @throws EntityNotFoundException Thrown if the TimeStamp or ScheduleDay does not match.
      */
     public TimeStamp updateTimeStamp(
-            final @NotNull UUID sessionID,
-            final @NotNull DayOfWeek dayOfWeek,
-            final int timeStampId,
-            UpdateTimeStampRequest request
+            @NotNull @NonNull final UUID sessionID,
+            @NotNull @NonNull final DayOfWeek dayOfWeek,
+            @NotNull @NonNull final UpdateTimeStampRequest request,
+            final int timeStampId
     ) throws InvalidSessionException, UnauthorizedAccessException {
 
         User user = checkUserExistenceBySessionID(sessionID);
@@ -90,8 +91,8 @@ public class TimeStampService {
 
         validateUserOwnership(timeStamp, user.getUserUUID(), dayOfWeek);
 
-        timeStamp.setType(request.getType());
-        timeStamp.setText(request.getText());
+        timeStamp.setType(request.type());
+        timeStamp.setText(request.text());
 
         return timeStampRepository.save(timeStamp);
     }
@@ -107,8 +108,8 @@ public class TimeStampService {
      * @throws EntityNotFoundException Thrown if the TimeStamp does not exist.
      */
     public void deleteTimeStamp(
-            final @NotNull UUID sessionID,
-            final @NotNull DayOfWeek dayOfWeek,
+            @NotNull @NonNull final UUID sessionID,
+            @NotNull @NonNull final DayOfWeek dayOfWeek,
             final int timeStampId
     ) throws UnauthorizedAccessException, InvalidSessionException {
 
@@ -130,7 +131,7 @@ public class TimeStampService {
      * @throws InvalidSessionException Thrown when the session ID is invalid.
      */
     public List<ScheduleDay> getAllScheduleDays(
-            final @NotNull UUID sessionID
+            @NotNull @NonNull final UUID sessionID
     ) throws InvalidSessionException {
 
         User user = checkUserExistenceBySessionID(sessionID);
@@ -142,14 +143,14 @@ public class TimeStampService {
      *
      * @param timeStamp The TimeStamp to validate.
      * @param userUUID The UUID of the authenticated User.
-     * @param dayOfWeek The expected day of week.
+     * @param dayOfWeek The expected day of the week.
      * @throws UnauthorizedAccessException Thrown if the TimeStamp does not belong to the User.
      * @throws EntityNotFoundException Thrown if the TimeStamp does not belong to the given day.
      */
     private void validateUserOwnership(
-            TimeStamp timeStamp,
-            UUID userUUID,
-            DayOfWeek dayOfWeek
+            @NotNull @NonNull final TimeStamp timeStamp,
+            @NotNull @NonNull final UUID userUUID,
+            @NotNull @NonNull final DayOfWeek dayOfWeek
     ) throws UnauthorizedAccessException {
 
         ScheduleDay day = timeStamp.getScheduleDay();

@@ -1,5 +1,6 @@
 package de.pls.stundenplaner.util;
 
+import lombok.NonNull;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.StandardCharsets;
@@ -15,7 +16,7 @@ public final class PasswordHasher {
      * @return The encoded Password.
      */
     public static String sha256(
-            @NotNull final String password
+            @NotNull @NonNull final String password
     ) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");

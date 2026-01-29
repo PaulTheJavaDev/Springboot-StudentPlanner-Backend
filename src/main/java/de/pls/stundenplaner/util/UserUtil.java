@@ -1,8 +1,9 @@
-package de.pls.stundenplaner.util.model;
+package de.pls.stundenplaner.util;
 
 import de.pls.stundenplaner.repository.UserRepository;
 import de.pls.stundenplaner.model.User;
 import de.pls.stundenplaner.util.exceptions.InvalidSessionException;
+import lombok.NonNull;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
@@ -29,7 +30,7 @@ public class UserUtil {
      * @throws InvalidSessionException Thrown if the SessionID is invalid
      */
     public static User checkUserExistenceBySessionID(
-            final @NotNull UUID sessionID
+            final @NotNull @NonNull UUID sessionID
     ) throws InvalidSessionException {
 
         return userRepository.findBySessionID(sessionID)

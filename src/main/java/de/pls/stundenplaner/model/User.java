@@ -3,6 +3,7 @@ package de.pls.stundenplaner.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.micrometer.common.lang.NonNull;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,8 +14,8 @@ import java.util.UUID;
 @SuppressWarnings("all")
 @Entity
 @Table(name = "users")
-@Getter @Setter @NoArgsConstructor
-public class User {
+@Getter @Setter @NoArgsConstructor(access = AccessLevel.PROTECTED)
+public final class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,22 +23,24 @@ public class User {
 
     @Column(nullable = false, unique = true, updatable = false)
     @JsonProperty("useruuid")
-    @NotNull private UUID userUUID;
+    @NotNull
+    private UUID userUUID;
 
     @Column(unique = true, nullable = false)
-    @NotNull private String username;
+    @NotNull
+    private String username;
 
     @Column(nullable = false)
     @JsonProperty("password_hash")
-    @NotNull private String password_hash;
+    @NotNull
+    private String password_hash;
 
     @Column(unique = true)
-    @JsonProperty("sessionID")
     private UUID sessionID;
 
     public User(
-            String username,
-            String password_hash
+            @NonNull final String username,
+            @NonNull final String password_hash
     ) {
         setUserUUID(UUID.randomUUID());
         this.username = username;

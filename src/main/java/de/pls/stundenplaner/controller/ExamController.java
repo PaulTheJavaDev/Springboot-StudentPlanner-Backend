@@ -18,7 +18,7 @@ import java.util.UUID;
  * Handles Web Requests for the Exams via {@link ExamService}
  */
 @RestController
-@RequestMapping("/exams/my")
+@RequestMapping("/exams/me")
 public class ExamController {
 
     private final ExamService examService;
@@ -41,7 +41,7 @@ public class ExamController {
     public ResponseEntity<Exam> createExam(
             final @RequestHeader("SessionID") UUID sessionID,
             @RequestBody CreateExamRequest createExamRequest
-    ) throws InvalidSessionException, UnauthorizedAccessException {
+    ) throws InvalidSessionException {
 
         Exam exam = examService.createExam(sessionID, createExamRequest);
         return new ResponseEntity<>(exam, HttpStatus.OK);

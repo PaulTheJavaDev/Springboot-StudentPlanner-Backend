@@ -8,6 +8,7 @@ import de.pls.stundenplaner.model.User;
 import de.pls.stundenplaner.util.PasswordHasher;
 import de.pls.stundenplaner.util.exceptions.InvalidLoginException;
 import de.pls.stundenplaner.util.exceptions.UserAlreadyExistsException;
+import lombok.NonNull;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
@@ -33,13 +34,13 @@ public class AuthService {
      * @throws InvalidLoginException Thrown if the credentials from the request DTO are invalid.
      */
     public LoginResponse checkLogin(
-            final @NotNull LoginRequest loginRequest
+            final @NotNull @NonNull LoginRequest loginRequest
     ) throws InvalidLoginException {
 
-        User user = userRepository.findByUsername(loginRequest.getUsername())
+        User user = userRepository.findByUsername(loginRequest.username())
                 .orElseThrow(InvalidLoginException::new);
 
-        String hashedInputPassword = PasswordHasher.sha256(loginRequest.getPassword());
+        String hashedInputPassword = PasswordHasher.sha256(loginRequest.password());
 
         if (!hashedInputPassword.equals(user.getPassword_hash())) {
             throw new InvalidLoginException();
@@ -59,18 +60,22 @@ public class AuthService {
      * @throws UserAlreadyExistsException Thrown when the username from the credentials already exists.
      */
     public void registerUser(
-            final @NotNull RegisterRequest registerRequest
+            final @NotNull @NonNull RegisterRequest registerRequest
     ) throws UserAlreadyExistsException {
 
-        final String username = registerRequest.getUsername();
+        final String username = registerRequest.username();
 
         if (userRepository.findByUsername(username).isPresent()) {
             throw new UserAlreadyExistsException(username);
         }
 
-        final String hashedPassword = PasswordHasher.sha256(registerRequest.getPassword());
+        final String hashedPassword = PasswordHasher.sha256(registerRequest.password());
 
-        final User user = new User(username, hashedPassword);
+        final User user = new User(
+                username,
+                hashedPassword
+        );
+
         userRepository.save(user);
     }
 }

@@ -1,9 +1,7 @@
 package de.pls.stundenplaner.model;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -16,26 +14,33 @@ import java.util.UUID;
 @SuppressWarnings("all")
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"userUUID", "dayOfWeek"})) // Both need to be unique (from other values from these Fields), a user cannot have two TuesDays in the Database.
-@Getter @Setter @NoArgsConstructor
-public class ScheduleDay {
+@Getter @Setter @NoArgsConstructor(access = AccessLevel.PROTECTED)
+public final class ScheduleDay {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     @Enumerated(EnumType.STRING)
-    @NotNull private DayOfWeek dayOfWeek;
-    @NotNull private UUID userUUID;
+    @Column(nullable = false)
+    @NotNull
+    private DayOfWeek dayOfWeek;
+
+    @Column(nullable = false, updatable = false)
+    @NotNull
+    private UUID userUUID;
+
     @OneToMany(
             mappedBy = "scheduleDay",
             cascade = CascadeType.ALL,
             orphanRemoval = true
     )
+    @Column(nullable = false)
     private List<TimeStamp> timeStamps = new ArrayList<>();
 
     public ScheduleDay(
-            DayOfWeek dayOfWeek,
-            UUID userUUID
+            @NonNull final DayOfWeek dayOfWeek,
+            @NonNull final UUID userUUID
     ) {
         this.dayOfWeek = dayOfWeek;
         this.userUUID = userUUID;

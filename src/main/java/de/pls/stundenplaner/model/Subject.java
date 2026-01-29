@@ -2,6 +2,9 @@ package de.pls.stundenplaner.model;
 
 import lombok.Getter;
 
+import java.util.Arrays;
+import java.util.List;
+
 @SuppressWarnings("all")
 @Getter
 public enum Subject {
@@ -22,6 +25,12 @@ public enum Subject {
 
     Subject(String name) {
         this.name = name;
+    }
+
+    public static List<String> getAllSubjects() {
+        return Arrays.stream(Subject.values())
+                .map(Subject::getName)
+                .toList();
     }
 
 }

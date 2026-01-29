@@ -1,42 +1,45 @@
 package de.pls.stundenplaner.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDate;
 import java.util.UUID;
 
 @SuppressWarnings("all")
 @Entity
-@Table(name = "exams")
-@Getter
-@Setter
-@NoArgsConstructor
-public class Exam {
+@Getter @Setter @NoArgsConstructor(access = AccessLevel.PROTECTED)
+public final class Exam {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @Column(nullable = false, updatable = false)
+    @NotNull
+    private UUID userUUID;
+
     @Enumerated(EnumType.STRING)
-    @NotNull private Subject subject;
-    @NotNull private UUID userUUID;
-    @NotNull private String notes;
-    @NotNull private LocalDate dueDate;
+    @Column(nullable = false)
+    @NotNull
+    private Subject subject;
+
+    @Column(nullable = false)
+    @NotNull
+    private String notes;
+
+    @Column(nullable = false)
+    @NotNull
+    private LocalDate dueDate;
 
     public Exam(
-            Subject subject,
-            UUID userUUID,
-            String notes,
-            LocalDate dueDate
+            @NonNull final Subject subject,
+            @NonNull final String notes,
+            @NonNull final LocalDate dueDate
     ) {
         this.subject = subject;
-        this.userUUID = userUUID;
         this.notes = notes;
         this.dueDate = dueDate;
     }
-
 }

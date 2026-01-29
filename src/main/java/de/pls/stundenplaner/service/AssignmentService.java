@@ -2,13 +2,14 @@ package de.pls.stundenplaner.service;
 
 import de.pls.stundenplaner.dto.request.assignment.CreateAssignmentRequest;
 import de.pls.stundenplaner.dto.request.assignment.UpdateAssignmentRequest;
+import de.pls.stundenplaner.model.Subject;
 import de.pls.stundenplaner.repository.AssignmentRepository;
 import de.pls.stundenplaner.model.Assignment;
 import de.pls.stundenplaner.model.User;
 import de.pls.stundenplaner.util.exceptions.InvalidSessionException;
 import de.pls.stundenplaner.util.exceptions.UnauthorizedAccessException;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.validation.Valid;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
@@ -18,7 +19,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static de.pls.stundenplaner.util.model.UserUtil.checkUserExistenceBySessionID;
+import static de.pls.stundenplaner.util.UserUtil.checkUserExistenceBySessionID;
 
 /**
  * Business logic for the {@link Assignment} Entity
@@ -33,11 +34,11 @@ public final class AssignmentService {
      * Gets all Assignments for a User.
      *
      * @param sessionID Used to determine the User by searching the SessionID in the Database.
-     * @return a List of Assignments. If none found, it will return an empty List.
+     * @return a List of Assignments. If none is found, it will return an empty List.
      * @throws InvalidSessionException Thrown when a user request contains no session ID or an invalid session ID.
      */
     public List<Assignment> getAssignments(
-            final @NotNull UUID sessionID
+            final @NotNull @NonNull UUID sessionID
     ) throws InvalidSessionException {
 
         User user = validateSession(sessionID);
@@ -54,24 +55,31 @@ public final class AssignmentService {
      * @throws InvalidSessionException Thrown when a user request contains no session ID or an invalid session ID.
      */
     public Assignment createAssignment(
-            @NotNull final UUID sessionID,
-            @Valid @NotNull final CreateAssignmentRequest createAssignmentRequest
+            @NotNull @NonNull final UUID sessionID,
+            @NotNull @NonNull final CreateAssignmentRequest createAssignmentRequest
     ) throws InvalidSessionException {
 
         User user = checkUserExistenceBySessionID(sessionID);
 
-        if (createAssignmentRequest.getDueDate().isBefore(LocalDate.now())) {
+        if (createAssignmentRequest.dueDate().isBefore(LocalDate.now())) {
             throw new IllegalArgumentException("Date cannot be in the past!");
         }
 
-        Assignment entity = new Assignment();
-        entity.setSubject(createAssignmentRequest.getSubject());
-        entity.setDueDate(createAssignmentRequest.getDueDate());
-        entity.setCompleted(createAssignmentRequest.isCompleted());
-        entity.setNotes(createAssignmentRequest.getNotes());
-        entity.setUserUUID(user.getUserUUID());
+        Subject subject = createAssignmentRequest.subject();
+        LocalDate dueDate = createAssignmentRequest.dueDate();
+        String notes = createAssignmentRequest.notes();
+        UUID userUUID = user.getUserUUID();
 
-        return assignmentRepository.save(entity);
+        Assignment assignment = new Assignment(
+                subject,
+                dueDate,
+                notes
+        );
+        assignment.setUserUUID(userUUID);
+
+        assignmentRepository.save(assignment);
+
+        return assignment;
     }
 
     /**
@@ -84,8 +92,8 @@ public final class AssignmentService {
      * @throws UnauthorizedAccessException Thrown if the UserUUID of the Assignment Object doesn't match the UserUUID found by the SessionID.
      */
     public Assignment updateAssignment(
-            @NotNull final UUID sessionID,
-            @NotNull final UpdateAssignmentRequest request,
+            @NotNull @NonNull final UUID sessionID,
+            @NotNull @NonNull final UpdateAssignmentRequest request,
             final int assignmentId
     ) throws UnauthorizedAccessException, InvalidSessionException {
 
@@ -97,8 +105,8 @@ public final class AssignmentService {
             throw new UnauthorizedAccessException("User is not authorized to update this assignment");
         }
 
-        assignment.setSubject(request.getSubject());
-        assignment.setDueDate(request.getDueDate());
+        assignment.setSubject(request.subject());
+        assignment.setDueDate(request.dueDate());
         assignment.setCompleted(request.isCompleted());
 
         assignmentRepository.save(assignment);
@@ -113,7 +121,7 @@ public final class AssignmentService {
      * @param assignmentId Used to find the associated Assignment Object in the Database.
      */
     public void deleteAssignment(
-            @NotNull final UUID sessionID,
+            @NotNull @NonNull final UUID sessionID,
             final int assignmentId
     ) throws InvalidSessionException {
 
@@ -137,7 +145,7 @@ public final class AssignmentService {
      * meaning the User doesn't exist or an Invalid SessionID was presented.
      */
     private User validateSession(
-            final @NotNull UUID sessionID
+            final @NotNull @NonNull UUID sessionID
     ) throws InvalidSessionException {
 
         return checkUserExistenceBySessionID(sessionID);

@@ -1,4 +1,4 @@
 package de.pls.stundenplaner.dto.request.auth;
 
-public class RegisterRequest extends AuthRequest {
+public record RegisterRequest(String username, String password) {
 }
