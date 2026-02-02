@@ -14,7 +14,7 @@
     </parent>
 
     <groupId>com.telusko</groupId>
-    <artifactId>Part13-simpleWebApp</artifactId>
+    <artifactId>Springboot-StudentPlanner</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
