@@ -23,7 +23,7 @@ public class WebConfig {
             @Override
             public void addCorsMappings(@NotNull @NonNull CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("http://localhost:3000")
+                        .allowedOrigins("*")
                         .allowedMethods("*")
                         .allowedHeaders("*");
             }
